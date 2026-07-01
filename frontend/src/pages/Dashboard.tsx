@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import {
-  IndianRupee, Clock, AlertTriangle, Users, TrendingDown, TrendingUp,
+  IndianRupee, Clock, AlertTriangle, Users, TrendingDown,
   ShoppingCart, Receipt, Package, PlusCircle, ArrowRight, Zap,
   Activity, BarChart2, Truck
 } from 'lucide-react';

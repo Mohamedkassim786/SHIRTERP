@@ -68,7 +68,7 @@ export const createSalesInvoice = async (req: Request, res: Response) => {
 
     const totalAmount = subTotal + gstAmount;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Create Invoice
       const invoice = await tx.salesInvoice.create({
         data: {
@@ -144,7 +144,7 @@ export const receivePayment = async (req: Request, res: Response) => {
   try {
     const { customerId, amount, method, reference } = req.body;
     
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const payment = await tx.customerPayment.create({
         data: {
           customerId: Number(customerId),

@@ -62,7 +62,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
     }
 
     // --- Verification successful, now update ERP records ---
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // 1. Log Customer Payment
       const payment = await tx.customerPayment.create({
         data: {

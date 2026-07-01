@@ -108,7 +108,7 @@ export const updateRawMaterial = async (req: Request, res: Response) => {
 
 export const getInventoryDashboard = async (req: Request, res: Response) => {
   const materials = await prisma.rawMaterial.findMany();
-  const lowStockMaterials = materials.filter(m => m.currentStock <= m.minStockLevel);
+  const lowStockMaterials = materials.filter((m: any) => m.currentStock <= m.minStockLevel);
   
   res.json({
     totalItems: materials.length,
@@ -139,7 +139,7 @@ export const adjustStock = async (req: Request, res: Response) => {
   const qty = Number(quantity);
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // 1. Create Ledger Entry
       const txn = await tx.materialStockTransaction.create({
         data: {
