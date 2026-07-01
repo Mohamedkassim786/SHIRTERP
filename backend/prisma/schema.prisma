@@ -1,0 +1,636 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  permissions Json     @default("{}")
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  passwordHash String
+  isActive     Boolean       @default(true)
+  roleId       Int
+  role         Role          @relation(fields: [roleId], references: [id])
+  activityLogs ActivityLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("users")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  entity    String?
+  entityId  Int?
+  details   Json?
+  timestamp DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+// -----------------------------------------------------------------------------
+// MASTERS
+// -----------------------------------------------------------------------------
+
+model Customer {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  type               String   @default("RETAIL") // RETAIL, WHOLESALE, DISTRIBUTOR
+  phone              String?
+  email              String?
+  address            String?
+  gstNumber          String?
+  outstandingBalance Float    @default(0.0)
+  isActive           Boolean  @default(true) // Soft delete flag
+  orders             CustomerOrder[]
+  invoices           SalesInvoice[]
+  payments           CustomerPayment[]
+  quotations         Quotation[]
+  reminders          CustomerReminder[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("customers")
+}
+
+model CustomerReminder {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+  title      String
+  notes      String?
+  dueDate    DateTime
+  status     String   @default("PENDING") // PENDING, COMPLETED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("customer_reminders")
+}
+
+model Supplier {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  category           String   @default("GENERAL") // FABRIC, THREAD, PACKAGING, GENERAL
+  phone              String?
+  email              String?
+  address            String?
+  gstNumber          String?
+  outstandingBalance Float    @default(0.0)
+  isActive           Boolean  @default(true) // Soft delete flag
+  purchaseOrders     PurchaseOrder[]
+  vendorPayments     VendorPayment[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("suppliers")
+}
+
+model Department {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  employees   Employee[]
+
+  @@map("departments")
+}
+
+model Employee {
+  id           Int        @id @default(autoincrement())
+  name         String
+  phone        String?
+  email        String?
+  address      String?
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  designation  String?
+  salary       Float      @default(0.0)
+  joinedDate   DateTime   @default(now())
+  isActive     Boolean    @default(true)
+  attendances  Attendance[]
+  leaveRequests LeaveRequest[]
+  salaryPayments SalaryPayment[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("employees")
+}
+
+model Category {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String?
+  shirtModels ShirtModel[]
+
+  @@map("categories")
+}
+
+model Size {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  orderItems     OrderItem[]
+  finishedGoods  FinishedGood[]
+  invoiceItems   InvoiceItem[]
+  quotationItems QuotationItem[]
+
+  @@map("sizes")
+}
+
+model Color {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  hexCode        String?
+  orderItems     OrderItem[]
+  finishedGoods  FinishedGood[]
+  invoiceItems   InvoiceItem[]
+  quotationItems QuotationItem[]
+
+  @@map("colors")
+}
+
+model Unit {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  shortName    String        @unique
+  rawMaterials RawMaterial[]
+
+  @@map("units")
+}
+
+model ShirtModel {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  categoryId     Int
+  category       Category        @relation(fields: [categoryId], references: [id])
+  hsnCode        String?
+  description    String?
+  imageUrl       String?
+  boms           BOM[]
+  orderItems     OrderItem[]
+  finishedGoods  FinishedGood[]
+  invoiceItems   InvoiceItem[]
+  quotationItems QuotationItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("shirt_models")
+}
+
+model RawMaterial {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  unitId        Int
+  unit          Unit     @relation(fields: [unitId], references: [id])
+  minStockLevel Float    @default(0.0)
+  currentStock  Float    @default(0.0)
+  location      String?  // Warehouse management
+  boms          BOM[]
+  stockTxns     MaterialStockTransaction[]
+  poItems       POItem[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("raw_materials")
+}
+
+model BOM {
+  id             Int         @id @default(autoincrement())
+  modelId        Int
+  shirtModel     ShirtModel  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  materialId     Int
+  rawMaterial    RawMaterial @relation(fields: [materialId], references: [id])
+  quantityPerUnit Float
+
+  @@unique([modelId, materialId])
+  @@map("boms")
+}
+
+// -----------------------------------------------------------------------------
+// PHASE 3: PURCHASING & INVENTORY
+// -----------------------------------------------------------------------------
+
+model PurchaseOrder {
+  id          Int        @id @default(autoincrement())
+  poNumber    String     @unique
+  supplierId  Int
+  supplier    Supplier   @relation(fields: [supplierId], references: [id])
+  status      String     @default("PENDING") // PENDING, PARTIAL_RECEIVED, COMPLETED, CANCELLED
+  totalAmount Float      @default(0.0)
+  notes       String?
+  items       POItem[]
+  grns        GRN[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("purchase_orders")
+}
+
+model POItem {
+  id          Int           @id @default(autoincrement())
+  poId        Int
+  po          PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  materialId  Int
+  material    RawMaterial   @relation(fields: [materialId], references: [id])
+  quantity    Float
+  unitPrice   Float
+  totalPrice  Float
+
+  @@map("po_items")
+}
+
+model GRN {
+  id           Int           @id @default(autoincrement())
+  grnNumber    String        @unique
+  poId         Int
+  po           PurchaseOrder @relation(fields: [poId], references: [id])
+  receivedDate DateTime      @default(now())
+  notes        String?
+  invoices     PurchaseInvoice[]
+  createdAt    DateTime      @default(now())
+
+  @@map("grns")
+}
+
+model MaterialStockTransaction {
+  id          Int         @id @default(autoincrement())
+  materialId  Int
+  material    RawMaterial @relation(fields: [materialId], references: [id])
+  type        String      // "IN", "OUT"
+  quantity    Float
+  reference   String?     // GRN Number, Work Order, or "MANUAL"
+  batchNumber String?     // Batch or Expiry tracking
+  notes       String?     // Reason for adjustment
+  date        DateTime    @default(now())
+  
+  @@map("material_stock_txns")
+}
+
+model PurchaseInvoice {
+  id            Int      @id @default(autoincrement())
+  invoiceNumber String   @unique
+  grnId         Int
+  grn           GRN      @relation(fields: [grnId], references: [id])
+  total         Float
+  tax           Float    @default(0.0)
+  status        String   @default("UNPAID") // UNPAID, PARTIAL, PAID
+  date          DateTime @default(now())
+  
+  @@map("purchase_invoices")
+}
+
+model VendorPayment {
+  id         Int      @id @default(autoincrement())
+  supplierId Int
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  amount     Float
+  method     String   // CASH, UPI, BANK_TRANSFER
+  reference  String?
+  date       DateTime @default(now())
+  
+  @@map("vendor_payments")
+}
+
+// -----------------------------------------------------------------------------
+// PHASE 4: ORDERS & PRODUCTION
+// -----------------------------------------------------------------------------
+
+model CustomerOrder {
+  id           Int         @id @default(autoincrement())
+  orderNumber  String      @unique
+  customerId   Int
+  customer     Customer    @relation(fields: [customerId], references: [id])
+  deliveryDate DateTime?
+  status       String      @default("PENDING") // PENDING, IN_PRODUCTION, READY, DELIVERED, CANCELLED
+  items        OrderItem[]
+  workOrders   WorkOrder[]
+  invoices     SalesInvoice[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("customer_orders")
+}
+
+model OrderItem {
+  id         Int           @id @default(autoincrement())
+  orderId    Int
+  order      CustomerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  modelId    Int
+  model      ShirtModel    @relation(fields: [modelId], references: [id])
+  colorId    Int
+  color      Color         @relation(fields: [colorId], references: [id])
+  sizeId     Int
+  size       Size          @relation(fields: [sizeId], references: [id])
+  quantity   Int
+  unitPrice  Float         @default(0.0)
+  totalPrice Float         @default(0.0)
+
+  @@map("order_items")
+}
+
+model WorkOrder {
+  id            Int               @id @default(autoincrement())
+  woNumber      String            @unique
+  orderId       Int
+  order         CustomerOrder     @relation(fields: [orderId], references: [id])
+  targetQty     Int
+  status        String            @default("PENDING") // PENDING, RUNNING, COMPLETED
+  startDate     DateTime?
+  endDate       DateTime?
+  stages        ProductionStage[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@map("work_orders")
+}
+
+model ProductionStage {
+  id          Int       @id @default(autoincrement())
+  workOrderId Int
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  stageName   String    // CUTTING, STITCHING, CHECKING, IRONING, PACKING
+  qtyIn       Int       @default(0)
+  qtyOut      Int       @default(0)
+  rejectedQty Int       @default(0)
+  date        DateTime  @default(now())
+
+  @@map("production_stages")
+}
+
+model FinishedGood {
+  id         Int        @id @default(autoincrement())
+  modelId    Int
+  model      ShirtModel @relation(fields: [modelId], references: [id])
+  colorId    Int
+  color      Color      @relation(fields: [colorId], references: [id])
+  sizeId     Int
+  size       Size       @relation(fields: [sizeId], references: [id])
+  quantity   Int        @default(0)
+  location   String?
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([modelId, colorId, sizeId])
+  @@map("finished_goods")
+}
+
+model FinishedGoodStockTxn {
+  id         Int          @id @default(autoincrement())
+  modelId    Int
+  colorId    Int
+  sizeId     Int
+  type       String       // "IN", "OUT"
+  quantity   Int
+  reference  String?      // Work Order or Sales Invoice
+  date       DateTime     @default(now())
+
+  @@map("finished_goods_stock_txns")
+}
+
+// -----------------------------------------------------------------------------
+// PHASE 5: SALES, INVOICING & REPORTS
+// -----------------------------------------------------------------------------
+
+model SalesInvoice {
+  id            Int           @id @default(autoincrement())
+  invoiceNumber String        @unique
+  orderId       Int?
+  order         CustomerOrder? @relation(fields: [orderId], references: [id])
+  customerId    Int
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  subTotal      Float         @default(0.0)
+  gstAmount     Float         @default(0.0)
+  totalAmount   Float         @default(0.0)
+  status        String        @default("UNPAID") // UNPAID, PARTIAL, PAID
+  items         InvoiceItem[]
+  date          DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+
+  @@map("sales_invoices")
+}
+
+model InvoiceItem {
+  id         Int          @id @default(autoincrement())
+  invoiceId  Int
+  invoice    SalesInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  modelId    Int
+  model      ShirtModel   @relation(fields: [modelId], references: [id])
+  colorId    Int
+  color      Color        @relation(fields: [colorId], references: [id])
+  sizeId     Int
+  size       Size         @relation(fields: [sizeId], references: [id])
+  quantity   Int
+  unitPrice  Float
+  gstPercent Float        @default(5.0) // typically 5% or 12% for garments
+  totalPrice Float
+
+  @@map("invoice_items")
+}
+
+model CustomerPayment {
+  id          Int      @id @default(autoincrement())
+  customerId  Int
+  customer    Customer @relation(fields: [customerId], references: [id])
+  amount      Float
+  method      String   // CASH, UPI, BANK_TRANSFER, CHEQUE
+  reference   String?
+  date        DateTime @default(now())
+  
+  @@map("customer_payments")
+}
+
+// =============================================================================
+// EXPENSE MANAGEMENT
+// =============================================================================
+
+model ExpenseCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  expenses Expense[]
+
+  @@map("expense_categories")
+}
+
+model Expense {
+  id          Int             @id @default(autoincrement())
+  categoryId  Int
+  category    ExpenseCategory @relation(fields: [categoryId], references: [id])
+  amount      Float
+  description String
+  paidBy      String          @default("CASH") // CASH, BANK
+  reference   String?
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+
+  @@map("expenses")
+}
+
+// =============================================================================
+// ACCOUNTS & FINANCE (Double-Entry System)
+// =============================================================================
+
+model LedgerAccount {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique // e.g., "Cash", "HDFC Bank", "Sales Revenue", "Rent Expense"
+  type         String        // ASSET, LIABILITY, EQUITY, REVENUE, EXPENSE
+  balance      Float         @default(0.0) // Current computed balance (for Assets/Expenses normal is positive Debit; for Liab/Equity/Rev normal is positive Credit)
+  isSystem     Boolean       @default(false) // True for default accounts that shouldn't be deleted
+  
+  // Relations for the two-legged transactions
+  debitTxns    JournalTransaction[] @relation("DebitAccount")
+  creditTxns   JournalTransaction[] @relation("CreditAccount")
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("ledger_accounts")
+}
+
+model JournalTransaction {
+  id              Int           @id @default(autoincrement())
+  date            DateTime      @default(now())
+  amount          Float
+  description     String
+  reference       String?       // Invoice No, Receipt No, etc.
+  
+  debitAccountId  Int
+  debitAccount    LedgerAccount @relation("DebitAccount", fields: [debitAccountId], references: [id])
+  
+  creditAccountId Int
+  creditAccount   LedgerAccount @relation("CreditAccount", fields: [creditAccountId], references: [id])
+
+  createdAt       DateTime      @default(now())
+
+  @@map("journal_transactions")
+}
+
+// =============================================================================
+// QUOTATIONS
+// =============================================================================
+
+model Quotation {
+  id              Int             @id @default(autoincrement())
+  quotationNumber String          @unique
+  customerId      Int
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  validUntil      DateTime?
+  status          String          @default("DRAFT") // DRAFT, SENT, ACCEPTED, REJECTED
+  notes           String?
+  subTotal        Float           @default(0.0)
+  gstAmount       Float           @default(0.0)
+  totalAmount     Float           @default(0.0)
+  items           QuotationItem[]
+  convertedOrderId Int?
+  createdAt       DateTime        @default(now())
+
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id           Int        @id @default(autoincrement())
+  quotationId  Int
+  quotation    Quotation  @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  modelId      Int
+  model        ShirtModel @relation(fields: [modelId], references: [id])
+  colorId      Int
+  color        Color      @relation(fields: [colorId], references: [id])
+  sizeId       Int
+  size         Size       @relation(fields: [sizeId], references: [id])
+  quantity     Int
+  unitPrice    Float
+  gstPercent   Float      @default(5.0)
+  totalPrice   Float
+
+  @@map("quotation_items")
+}
+
+// =============================================================================
+// HR & PAYROLL
+// =============================================================================
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  date        DateTime
+  status      String   @default("PRESENT") // PRESENT, ABSENT, HALF_DAY, LEAVE
+  checkIn     String?
+  checkOut    String?
+  notes       String?
+
+  @@unique([employeeId, date])
+  @@map("attendances")
+}
+
+model LeaveRequest {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  fromDate    DateTime
+  toDate      DateTime
+  reason      String
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy  String?
+  createdAt   DateTime @default(now())
+
+  @@map("leave_requests")
+}
+
+model SalaryPayment {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  month        Int      // 1-12
+  year         Int
+  baseSalary   Float
+  deductions   Float    @default(0.0)
+  bonus        Float    @default(0.0)
+  netPay       Float
+  status       String   @default("PENDING") // PENDING, PAID
+  paidDate     DateTime?
+  paidMethod   String?
+  createdAt    DateTime @default(now())
+
+  @@unique([employeeId, month, year])
+  @@map("salary_payments")
+}
+
+// =============================================================================
+// COMPANY SETTINGS
+// =============================================================================
+
+model CompanySettings {
+  id             Int     @id @default(autoincrement())
+  companyName    String  @default("My Company")
+  address        String?
+  phone          String?
+  email          String?
+  gstin          String?
+  cin            String?
+  logoUrl        String?
+  invoicePrefix  String  @default("INV")
+  invoiceFooter  String?
+  defaultGst     Float   @default(5.0)
+  termsConditions String?
+  bankDetails    String?
+  razorpayKeyId  String?
+  razorpaySecret String?
+
+  @@map("company_settings")
+}
+

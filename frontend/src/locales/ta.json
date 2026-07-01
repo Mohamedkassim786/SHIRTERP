@@ -1,0 +1,24 @@
+{
+  "login": {
+    "title": "ஈஆர்பி-யில் உள்நுழைக",
+    "email": "மின்னஞ்சல் முகவரி",
+    "password": "கடவுச்சொல்",
+    "submit": "உள்நுழை",
+    "error": "தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்"
+  },
+  "menu": {
+    "dashboard": "முகப்பு (Dashboard)",
+    "orders": "ஆர்டர்கள் (Orders)",
+    "production": "உற்பத்தி (Production)",
+    "inventory": "சரக்கு இருப்பு (Inventory)",
+    "sales": "விற்பனை (Sales)",
+    "hr": "ஊழியர்கள் & சம்பளம் (HR & Payroll)",
+    "accounts": "கணக்குகள் (Accounts)",
+    "reports": "அறிக்கைகள் (Reports)",
+    "settings": "அமைப்புகள் (Settings)",
+    "logout": "வெளியேறு (Logout)"
+  },
+  "common": {
+    "language": "மொழி (Language)"
+  }
+}

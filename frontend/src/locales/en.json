@@ -1,0 +1,24 @@
+{
+  "login": {
+    "title": "Login to ERP",
+    "email": "Email Address",
+    "password": "Password",
+    "submit": "Login",
+    "error": "Invalid email or password"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "orders": "Orders",
+    "production": "Production",
+    "inventory": "Inventory",
+    "sales": "Sales",
+    "hr": "HR & Payroll",
+    "accounts": "Accounts",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "common": {
+    "language": "Language"
+  }
+}
