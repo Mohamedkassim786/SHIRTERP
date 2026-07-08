@@ -1,3 +1,4 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,12 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
-import { ArrowLeft, User, Phone, MapPin, Building, IndianRupee, Clock, CheckCircle, Plus } from 'lucide-react';
+import {  ArrowLeft, User, Phone, MapPin, Building, IndianRupee, Clock, CheckCircle, Plus  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 type TabType = 'invoices' | 'payments' | 'reminders';
 
 export default function CustomerProfile() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabType>('invoices');
@@ -52,7 +55,7 @@ export default function CustomerProfile() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Customer Profile</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('customers.profile.title', 'Customer Profile')}</h1>
         <Badge variant={profile.type === 'WHOLESALE' ? 'default' : profile.type === 'DISTRIBUTOR' ? 'destructive' : 'secondary'} className="ml-auto">
           {profile.type}
         </Badge>
@@ -72,21 +75,21 @@ export default function CustomerProfile() {
               <div className="flex items-start gap-3">
                 <Phone className="h-4 w-4 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Phone Number</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.phone', 'PHONE NUMBER')}</p>
                   <p className="text-sm font-medium text-slate-900 mt-0.5">{profile.phone || 'Not provided'}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Building className="h-4 w-4 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">GST Number</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.gst', 'GST NUMBER')}</p>
                   <p className="text-sm font-medium text-slate-900 mt-0.5">{profile.gstNumber || 'Not provided'}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 sm:col-span-2">
                 <MapPin className="h-4 w-4 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Address</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('common.address', 'Address')}</p>
                   <p className="text-sm text-slate-900 mt-0.5">{profile.address || 'Not provided'}</p>
                 </div>
               </div>
@@ -99,18 +102,18 @@ export default function CustomerProfile() {
           <CardHeader className="pb-3 border-b border-indigo-100/50">
             <CardTitle className="text-lg flex items-center gap-2">
               <IndianRupee className="h-5 w-5 text-indigo-600" />
-              Financials
+              {t('customers.profile.financials', 'Financials')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
             <div>
-              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Current Outstanding</p>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.outstanding', 'CURRENT OUTSTANDING')}</p>
               <p className={`text-3xl font-bold mt-1 ${profile.outstandingBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
                 ₹{profile.outstandingBalance?.toLocaleString('en-IN') || 0}
               </p>
             </div>
             <div className="pt-4 border-t border-indigo-100/50">
-              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Lifetime Revenue</p>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.revenue', 'LIFETIME REVENUE')}</p>
               <p className="text-xl font-bold text-slate-900 mt-1">
                 ₹{profile.totalRevenue?.toLocaleString('en-IN') || 0}
               </p>
@@ -132,7 +135,7 @@ export default function CustomerProfile() {
                   : 'border-transparent text-slate-400 hover:text-slate-700'
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {t('customers.profile.tabs.' + tab, tab.charAt(0).toUpperCase() + tab.slice(1))}
             </button>
           ))}
         </div>
@@ -140,10 +143,10 @@ export default function CustomerProfile() {
         {activeTab === 'invoices' && (
           <DataTable 
             columns={[
-              { key: 'invoiceNumber', label: 'Invoice No' },
-              { key: 'date', label: 'Date', render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
-              { key: 'totalAmount', label: 'Amount', render: (r: any) => `₹${r.totalAmount?.toLocaleString('en-IN')}` },
-              { key: 'status', label: 'Status', render: (r: any) => <Badge variant={r.status === 'PAID' ? 'default' : 'secondary'}>{r.status}</Badge> }
+              { key: 'invoiceNumber', label: t('common.invoiceNo', 'INVOICE NO') },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+              { key: 'totalAmount', label: t('common.amount', 'AMOUNT'), render: (r: any) => `₹${r.totalAmount?.toLocaleString('en-IN')}` },
+              { key: 'status', label: t('common.status', 'STATUS'), render: (r: any) => <Badge variant={r.status === 'PAID' ? 'default' : 'secondary'}>{r.status}</Badge> }
             ]} 
             data={profile.invoices || []} 
             searchKey="invoiceNumber" 
@@ -153,10 +156,10 @@ export default function CustomerProfile() {
         {activeTab === 'payments' && (
           <DataTable 
             columns={[
-              { key: 'date', label: 'Date', render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
-              { key: 'method', label: 'Method' },
-              { key: 'reference', label: 'Reference No' },
-              { key: 'amount', label: 'Amount', render: (r: any) => <span className="font-bold text-green-600">+₹{r.amount?.toLocaleString('en-IN')}</span> },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+              { key: 'method', label: t('common.method', 'METHOD') },
+              { key: 'reference', label: t('common.refNo', 'REFERENCE NO') },
+              { key: 'amount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="font-bold text-green-600">+₹{r.amount?.toLocaleString('en-IN')}</span> },
             ]} 
             data={profile.payments || []} 
             searchKey="reference" 
@@ -166,9 +169,9 @@ export default function CustomerProfile() {
         {activeTab === 'reminders' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-slate-700">Follow-up Reminders</h3>
+              <h3 className="font-semibold text-slate-700">{t('customers.profile.reminders', 'Follow-up Reminders')}</h3>
               <Button size="sm" onClick={() => setShowReminderForm(!showReminderForm)}>
-                <Plus className="h-4 w-4 mr-1" /> Add Reminder
+                <Plus className="h-4 w-4 mr-1" /> {t('customers.profile.addReminder', 'Add Reminder')}
               </Button>
             </div>
 
@@ -179,19 +182,19 @@ export default function CustomerProfile() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Follow-up Title</Label>
-                        <Input required value={reminderForm.title} onChange={e => setReminderForm({...reminderForm, title: e.target.value})} placeholder="e.g. Call regarding overdue payment" />
+                        <AnimatedInput required value={reminderForm.title} onChange={e => setReminderForm({...reminderForm, title: e.target.value})} placeholder="e.g. Call regarding overdue payment" />
                       </div>
                       <div className="space-y-2">
                         <Label>Due Date</Label>
-                        <Input type="date" required value={reminderForm.dueDate} onChange={e => setReminderForm({...reminderForm, dueDate: e.target.value})} />
+                        <AnimatedInput type="date" required value={reminderForm.dueDate} onChange={e => setReminderForm({...reminderForm, dueDate: e.target.value})} />
                       </div>
                       <div className="space-y-2 sm:col-span-2">
                         <Label>Notes (Optional)</Label>
-                        <Input value={reminderForm.notes} onChange={e => setReminderForm({...reminderForm, notes: e.target.value})} />
+                        <AnimatedInput value={reminderForm.notes} onChange={e => setReminderForm({...reminderForm, notes: e.target.value})} />
                       </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button type="button" variant="ghost" onClick={() => setShowReminderForm(false)}>Cancel</Button>
+                      <Button type="button" variant="ghost" onClick={() => setShowReminderForm(false)}>{t('common.cancel', 'Cancel')}</Button>
                       <Button type="submit" disabled={createReminderMutation.isPending}>Save Reminder</Button>
                     </div>
                   </form>

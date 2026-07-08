@@ -1,3 +1,5 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -8,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, IndianRupee, Clock, Trash2, Eye } from 'lucide-react';
+import {  Users, IndianRupee, Clock, Trash2, Eye  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 export default function Customers() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -77,22 +81,22 @@ export default function Customers() {
   };
 
   const columns = [
-    { key: 'name', label: 'Customer Name', render: (r: any) => <span className="font-medium text-slate-900">{r.name}</span> },
-    { key: 'type', label: 'Type', render: (r: any) => (
+    { key: 'name', label: t('customers.cols.name', 'Customer Name'), render: (r: any) => <span className="font-medium text-slate-900">{r.name}</span> },
+    { key: 'type', label: t('customers.cols.type', 'TYPE'), render: (r: any) => (
       <Badge variant={r.type === 'WHOLESALE' ? 'default' : r.type === 'DISTRIBUTOR' ? 'destructive' : 'secondary'}>
         {r.type}
       </Badge>
     )},
-    { key: 'phone', label: 'Phone' },
-    { key: 'outstandingBalance', label: 'Outstanding (₹)', render: (row: any) => (
+    { key: 'phone', label: t('customers.cols.phone', 'Phone') },
+    { key: 'outstandingBalance', label: t('customers.cols.outstanding', 'OUTSTANDING (₹)'), render: (row: any) => (
       <span className={`font-bold ${row.outstandingBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
         ₹{row.outstandingBalance?.toLocaleString('en-IN') || 0}
       </span>
     )},
-    { key: 'actions', label: 'Actions', render: (row: any) => (
+    { key: 'actions', label: t('customers.cols.actions', 'Actions'), render: (row: any) => (
       <div className="flex justify-end gap-2">
         <Button size="sm" variant="outline" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" onClick={() => navigate(`/customers/${row.id}`)}>
-          <Eye className="h-4 w-4 mr-1" /> Profile
+          <Eye className="h-4 w-4 mr-1" /> {t('common.profile', 'Profile')}
         </Button>
         <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50" onClick={() => {
           if(confirm('Are you sure you want to delete this customer? Historical data will be preserved.')) deleteMutation.mutate(row.id);
@@ -105,14 +109,14 @@ export default function Customers() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-slate-900">CRM Dashboard</h1>
+      <h1 className="text-2xl font-bold text-slate-900">{t('customers.title', 'CRM Dashboard')}</h1>
 
       {/* CRM KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="glass border-l-4 border-l-blue-500">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Total Customers</p>
+              <p className="text-sm font-medium text-slate-400">{t('customers.kpi.total', 'Total Customers')}</p>
               <p className="text-2xl font-bold">{crmStats?.totalCustomers || 0}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-xl"><Users className="h-6 w-6 text-blue-600" /></div>
@@ -121,7 +125,7 @@ export default function Customers() {
         <Card className="glass border-l-4 border-l-red-500">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Market Dues</p>
+              <p className="text-sm font-medium text-slate-400">{t('customers.kpi.marketDues', 'Market Dues')}</p>
               <p className="text-2xl font-bold text-red-600">₹{crmStats?.totalOutstanding?.toLocaleString('en-IN') || 0}</p>
             </div>
             <div className="p-3 bg-red-100 rounded-xl"><IndianRupee className="h-6 w-6 text-red-600" /></div>
@@ -130,7 +134,7 @@ export default function Customers() {
         <Card className="glass border-l-4 border-l-orange-500 cursor-pointer hover:bg-slate-50/50 transition-colors">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-400">Pending Follow-ups</p>
+              <p className="text-sm font-medium text-slate-400">{t('customers.kpi.followUps', 'Pending Follow-ups')}</p>
               <p className="text-2xl font-bold text-orange-600">{crmStats?.pendingReminders?.length || 0}</p>
             </div>
             <div className="p-3 bg-orange-100 rounded-xl"><Clock className="h-6 w-6 text-orange-600" /></div>
@@ -139,7 +143,7 @@ export default function Customers() {
       </div>
 
       <div className="flex justify-between items-end">
-        <h2 className="text-lg font-bold text-slate-700">Customer Directory</h2>
+        <h2 className="text-lg font-bold text-slate-700">{t('customers.directory', 'Customer Directory')}</h2>
       </div>
 
       <DataTable 
@@ -149,45 +153,46 @@ export default function Customers() {
         error={error}
         searchKey="name" 
         onAdd={() => handleOpenDialog()} 
+        addLabel={t('common.addNew', 'Add New')}
         onEdit={(row) => handleOpenDialog(row)} 
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingCustomer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+            <DialogTitle>{editingCustomer ? t('customers.edit', 'Edit Customer') : t('customers.addNew', 'Add New Customer')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2 col-span-2 sm:col-span-1">
-                <Label>Name *</Label>
-                <Input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                <Label>{t('customers.form.name', 'Name *')}</Label>
+                <AnimatedInput required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
               </div>
               <div className="space-y-2 col-span-2 sm:col-span-1">
-                <Label>Customer Type</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-                  <option value="RETAIL">Retail</option>
-                  <option value="WHOLESALE">Wholesale</option>
-                  <option value="DISTRIBUTOR">Distributor</option>
-                </select>
+                <Label>{t('customers.form.type', 'Customer Type')}</Label>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
+                  <option value="RETAIL">{t('customers.form.retail', 'Retail')}</option>
+                  <option value="WHOLESALE">{t('customers.form.wholesale', 'Wholesale')}</option>
+                  <option value="DISTRIBUTOR">{t('customers.form.distributor', 'Distributor')}</option>
+                </AnimatedSelect>
               </div>
               <div className="space-y-2 col-span-2 sm:col-span-1">
-                <Label>Phone</Label>
-                <Input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                <Label>{t('common.phone', 'Phone')}</Label>
+                <AnimatedInput value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
               </div>
               <div className="space-y-2 col-span-2 sm:col-span-1">
-                <Label>GST Number</Label>
-                <Input value={formData.gstNumber} onChange={e => setFormData({ ...formData, gstNumber: e.target.value })} />
+                <Label>{t('customers.profile.gst', 'GST NUMBER')}</Label>
+                <AnimatedInput value={formData.gstNumber} onChange={e => setFormData({ ...formData, gstNumber: e.target.value })} />
               </div>
               <div className="space-y-2 col-span-2">
-                <Label>Address</Label>
-                <Input value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
+                <Label>{t('common.address', 'Address')}</Label>
+                <AnimatedInput value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
               </div>
             </div>
             <div className="pt-4 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Saving...' : 'Save Customer'}
+                {mutation.isPending ? t('common.saving', 'Saving...') : t('customers.form.save', 'Save Customer')}
               </Button>
             </div>
           </form>

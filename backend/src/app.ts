@@ -19,6 +19,7 @@ import adminRoutes from './routes/admin.routes';
 import systemRoutes from './routes/system.routes';
 import financeRoutes from './routes/finance.routes';
 import paymentRoutes from './routes/payment.routes';
+import ewaybillRoutes from './routes/ewaybill.routes';
 
 import { errorHandler } from './middleware/error.middleware';
 import { getFullReports } from './controllers/reports.controller';
@@ -104,6 +105,7 @@ app.use('/api/hr', hrRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/eway-bills', ewaybillRoutes);
 
 // Full Reports API (kept as-is per architecture rules)
 app.get('/api/full-reports', authenticate, getFullReports);

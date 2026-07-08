@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import {  Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, CheckCircle2, AlertCircle  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 
 import { Label } from '@/components/ui/label';
@@ -35,6 +36,8 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', rememberMe: false },
   });
+
+  const { t } = useTranslation();
 
   const rememberMe = watch('rememberMe');
 
@@ -164,7 +167,7 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your password"
+              placeholder={t('common.enter', 'Enter your password')}
               autoComplete="current-password"
               className={`
                 w-full pl-10 pr-11 h-12 rounded-xl border bg-white text-slate-900 text-sm placeholder:text-slate-400

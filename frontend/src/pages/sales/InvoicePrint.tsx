@@ -1,10 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Printer, CreditCard } from 'lucide-react';
+import {  Printer, CreditCard  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 export default function InvoicePrint() {
+  const { t } = useTranslation();
   const { id } = useParams();
 
   const { data: invoice, isLoading: invoiceLoading, refetch } = useQuery({
@@ -164,7 +166,7 @@ export default function InvoicePrint() {
                   <th className="py-3 px-2 font-semibold text-center">Qty</th>
                   <th className="py-3 px-2 font-semibold text-right">Rate</th>
                   <th className="py-3 px-2 font-semibold text-right">GST %</th>
-                  <th className="py-3 px-2 font-semibold text-right">Amount</th>
+                  <th className="py-3 px-2 font-semibold text-right">{t('common.amount', 'Amount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">

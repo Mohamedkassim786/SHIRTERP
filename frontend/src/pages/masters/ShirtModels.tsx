@@ -1,3 +1,5 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/shared/DataTable';
@@ -5,10 +7,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Plus } from 'lucide-react';
+import {  Trash2, Plus  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 export default function ShirtModels() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', categoryId: '', hsnCode: '' });
@@ -70,19 +74,19 @@ export default function ShirtModels() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Model Name *</Label>
-                <Input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                <AnimatedInput required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
               </div>
               <div className="space-y-2">
                 <Label>Category *</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} required>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} required>
                   <option value="">Select Category</option>
                   {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                </AnimatedSelect>
               </div>
             </div>
             <div className="space-y-2">
               <Label>HSN Code</Label>
-              <Input value={formData.hsnCode} onChange={e => setFormData({ ...formData, hsnCode: e.target.value })} placeholder="e.g. 6205" />
+              <AnimatedInput value={formData.hsnCode} onChange={e => setFormData({ ...formData, hsnCode: e.target.value })} placeholder="e.g. 6205" />
             </div>
 
             <div className="space-y-2">
@@ -103,13 +107,13 @@ export default function ShirtModels() {
                     {bomItems.map((item, idx) => (
                       <tr key={idx} className="border-t">
                         <td className="p-2">
-                          <select className="w-full rounded border border-input px-2 py-1 text-sm" value={item.materialId} onChange={e => updateBomRow(idx, 'materialId', e.target.value)}>
+                          <AnimatedSelect className="w-full rounded border border-input px-2 py-1 text-sm" value={item.materialId} onChange={e => updateBomRow(idx, 'materialId', e.target.value)}>
                             <option value="">Select Material</option>
                             {materials.map((m: any) => <option key={m.id} value={m.id}>{m.name} ({m.unit?.shortName})</option>)}
-                          </select>
+                          </AnimatedSelect>
                         </td>
                         <td className="p-2">
-                          <Input type="number" min="0.001" step="0.001" className="w-32" value={item.quantityPerUnit} onChange={e => updateBomRow(idx, 'quantityPerUnit', e.target.value)} placeholder="e.g. 1.5" />
+                          <AnimatedInput type="number" min="0.001" step="0.001" className="w-32" value={item.quantityPerUnit} onChange={e => updateBomRow(idx, 'quantityPerUnit', e.target.value)} placeholder="e.g. 1.5" />
                         </td>
                         <td className="p-2">
                           {bomItems.length > 1 && <Button type="button" size="sm" variant="ghost" onClick={() => removeBomRow(idx)}><Trash2 className="h-4 w-4 text-red-500" /></Button>}
@@ -122,7 +126,7 @@ export default function ShirtModels() {
             </div>
 
             <div className="pt-2 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Saving...' : 'Save Model'}</Button>
             </div>
           </form>

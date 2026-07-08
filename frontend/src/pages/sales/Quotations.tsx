@@ -1,3 +1,5 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/shared/DataTable';
@@ -6,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, FileCheck } from 'lucide-react';
+import {  Trash2, Plus, FileCheck  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 interface QItem { modelId: string; colorId: string; sizeId: string; quantity: string; unitPrice: string; gstPercent: string; }
@@ -14,6 +17,7 @@ interface QItem { modelId: string; colorId: string; sizeId: string; quantity: st
 const statusColors: Record<string, any> = { DRAFT: 'secondary', SENT: 'default', ACCEPTED: 'outline', REJECTED: 'destructive' };
 
 export default function Quotations() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
@@ -80,19 +84,19 @@ export default function Quotations() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Customer *</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value })} required>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value })} required>
                   <option value="">Select Customer</option>
                   {customers.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                </AnimatedSelect>
               </div>
               <div className="space-y-2">
                 <Label>Valid Until</Label>
-                <Input type="date" value={form.validUntil} onChange={e => setForm({ ...form, validUntil: e.target.value })} />
+                <AnimatedInput type="date" value={form.validUntil} onChange={e => setForm({ ...form, validUntil: e.target.value })} />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Notes</Label>
-              <Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Payment terms, delivery notes..." />
+              <AnimatedInput value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Payment terms, delivery notes..." />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
@@ -101,16 +105,16 @@ export default function Quotations() {
               </div>
               <div className="rounded-lg border overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50/50"><tr><th className="p-2 text-left">Shirt</th><th className="p-2 text-left">Color</th><th className="p-2 text-left">Size</th><th className="p-2">Qty</th><th className="p-2">Price</th><th className="p-2">GST%</th><th className="p-2">Total</th><th></th></tr></thead>
+                  <thead className="bg-slate-50/50"><tr><th className="p-2 text-left">Shirt</th><th className="p-2 text-left">Color</th><th className="p-2 text-left">Size</th><th className="p-2">Qty</th><th className="p-2">Price</th><th className="p-2">GST%</th><th className="p-2">{t('common.total', 'Total')}</th><th></th></tr></thead>
                   <tbody>
                     {items.map((it, idx) => (
                       <tr key={idx} className="border-t">
-                        <td className="p-1"><select className="w-full rounded border border-input px-2 py-1 text-xs" value={it.modelId} onChange={e => updateItem(idx, 'modelId', e.target.value)} required><option value="">Select</option>{models.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></td>
-                        <td className="p-1"><select className="w-full rounded border border-input px-2 py-1 text-xs" value={it.colorId} onChange={e => updateItem(idx, 'colorId', e.target.value)} required><option value="">Select</option>{colors.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></td>
-                        <td className="p-1"><select className="w-full rounded border border-input px-2 py-1 text-xs" value={it.sizeId} onChange={e => updateItem(idx, 'sizeId', e.target.value)} required><option value="">Select</option>{sizes.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></td>
-                        <td className="p-1"><Input type="number" min="1" className="w-16 text-xs" value={it.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} required /></td>
-                        <td className="p-1"><Input type="number" min="0" className="w-24 text-xs" value={it.unitPrice} onChange={e => updateItem(idx, 'unitPrice', e.target.value)} required /></td>
-                        <td className="p-1"><select className="w-16 rounded border border-input px-1 py-1 text-xs" value={it.gstPercent} onChange={e => updateItem(idx, 'gstPercent', e.target.value)}><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option></select></td>
+                        <td className="p-1"><AnimatedSelect className="w-full rounded border border-input px-2 py-1 text-xs" value={it.modelId} onChange={e => updateItem(idx, 'modelId', e.target.value)} required><option value="">Select</option>{models.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}</AnimatedSelect></td>
+                        <td className="p-1"><AnimatedSelect className="w-full rounded border border-input px-2 py-1 text-xs" value={it.colorId} onChange={e => updateItem(idx, 'colorId', e.target.value)} required><option value="">Select</option>{colors.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}</AnimatedSelect></td>
+                        <td className="p-1"><AnimatedSelect className="w-full rounded border border-input px-2 py-1 text-xs" value={it.sizeId} onChange={e => updateItem(idx, 'sizeId', e.target.value)} required><option value="">Select</option>{sizes.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}</AnimatedSelect></td>
+                        <td className="p-1"><AnimatedInput type="number" min="1" className="w-16 text-xs" value={it.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} required /></td>
+                        <td className="p-1"><AnimatedInput type="number" min="0" className="w-24 text-xs" value={it.unitPrice} onChange={e => updateItem(idx, 'unitPrice', e.target.value)} required /></td>
+                        <td className="p-1"><AnimatedSelect className="w-16 rounded border border-input px-1 py-1 text-xs" value={it.gstPercent} onChange={e => updateItem(idx, 'gstPercent', e.target.value)}><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option></AnimatedSelect></td>
                         <td className="p-1 text-xs font-medium">₹{((Number(it.quantity)||0)*(Number(it.unitPrice)||0)*(1+(Number(it.gstPercent)||0)/100)).toFixed(0)}</td>
                         <td className="p-1">{items.length > 1 && <Button type="button" size="sm" variant="ghost" onClick={() => removeItem(idx)}><Trash2 className="h-3 w-3 text-red-500" /></Button>}</td>
                       </tr>
@@ -121,7 +125,7 @@ export default function Quotations() {
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button type="submit" disabled={createMutation.isPending}>{createMutation.isPending ? 'Creating...' : 'Create Quotation'}</Button>
             </div>
           </form>
@@ -133,9 +137,9 @@ export default function Quotations() {
           <DialogHeader><DialogTitle>Convert {selectedQ?.quotationNumber} to Order</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-4">
             <p className="text-sm text-slate-400">This will create a Customer Order with all {selectedQ?.items?.length} items from this quotation.</p>
-            <div className="space-y-2"><Label>Delivery Date</Label><Input type="date" value={convertDate} onChange={e => setConvertDate(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Delivery Date</Label><AnimatedInput type="date" value={convertDate} onChange={e => setConvertDate(e.target.value)} /></div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsConvertOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setIsConvertOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button onClick={() => convertMutation.mutate({ id: selectedQ?.id, deliveryDate: convertDate })} disabled={convertMutation.isPending}>{convertMutation.isPending ? 'Converting...' : 'Confirm Convert'}</Button>
             </div>
           </div>

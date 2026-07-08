@@ -8,9 +8,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '@/api/axios';
 import { useAuthStore } from '@/store/auth';
 
+import { useTranslation } from 'react-i18next';
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { t, i18n } = useTranslation();
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
@@ -32,9 +35,9 @@ export default function Dashboard() {
 
   const kpis = [
     {
-      label: "Today's Sales",
+      label: t('dashboard.metrics.totalRevenue', "Today's Sales"),
       value: `₹${todayRevenue.toLocaleString('en-IN')}`,
-      sub: 'Revenue generated today',
+      sub: t('dashboard.metrics.thisMonth', 'Revenue generated today'),
       icon: IndianRupee,
       gradient: 'from-emerald-500 to-teal-600',
       lightBg: 'bg-emerald-50',
@@ -43,9 +46,9 @@ export default function Dashboard() {
       trend: '+12.5%'
     },
     {
-      label: 'Month Expenses',
+      label: t('menu.Expenses', 'Month Expenses'),
       value: `₹${monthExpenses.toLocaleString('en-IN')}`,
-      sub: 'Total expenses this month',
+      sub: t('dashboard.metrics.thisMonth', 'Total expenses this month'),
       icon: TrendingDown,
       gradient: 'from-rose-500 to-red-600',
       lightBg: 'bg-rose-50',
@@ -54,9 +57,9 @@ export default function Dashboard() {
       trend: '-3.2%'
     },
     {
-      label: 'Pending Orders',
+      label: t('dashboard.metrics.pendingOrders', 'Pending Orders'),
       value: stats?.pendingOrders ?? 0,
-      sub: 'Orders awaiting processing',
+      sub: t('dashboard.metrics.needsAction', 'Orders awaiting processing'),
       icon: Clock,
       gradient: 'from-amber-500 to-orange-500',
       lightBg: 'bg-amber-50',
@@ -65,9 +68,9 @@ export default function Dashboard() {
       trend: null
     },
     {
-      label: 'Total Customers',
+      label: t('menu.Customers', 'Total Customers'),
       value: stats?.totalCustomers ?? 0,
-      sub: 'Registered customers',
+      sub: t('menu.Customers', 'Registered customers'),
       icon: Users,
       gradient: 'from-blue-500 to-indigo-600',
       lightBg: 'bg-blue-50',
@@ -76,20 +79,20 @@ export default function Dashboard() {
       trend: '+2 new'
     },
     {
-      label: 'Low Stock Alerts',
+      label: t('dashboard.metrics.stockAlerts', 'Low Stock Alerts'),
       value: stats?.lowStockCount ?? 0,
-      sub: 'Items below minimum level',
+      sub: t('dashboard.metrics.itemsLow', 'Items below minimum level'),
       icon: AlertTriangle,
       gradient: stats?.lowStockCount > 0 ? 'from-red-500 to-rose-600' : 'from-emerald-500 to-green-600',
       lightBg: stats?.lowStockCount > 0 ? 'bg-red-50' : 'bg-emerald-50',
       iconColor: stats?.lowStockCount > 0 ? 'text-red-600' : 'text-emerald-600',
       link: '/inventory',
-      trend: stats?.lowStockCount > 0 ? 'Action needed' : 'All good'
+      trend: stats?.lowStockCount > 0 ? t('dashboard.metrics.needsAction', 'Action needed') : 'All good'
     },
     {
-      label: 'Total Vendors',
+      label: t('menu.Vendors', 'Total Vendors'),
       value: stats?.totalSuppliers ?? 0,
-      sub: 'Active suppliers',
+      sub: t('menu.Vendors', 'Active suppliers'),
       icon: Truck,
       gradient: 'from-purple-500 to-violet-600',
       lightBg: 'bg-purple-50',
@@ -100,12 +103,12 @@ export default function Dashboard() {
   ];
 
   const quickActions = [
-    { label: 'Add Customer',   icon: Users,        path: '/customers',  from: 'from-blue-500',    to: 'to-blue-700' },
-    { label: 'Create Invoice', icon: Receipt,      path: '/sales',      from: 'from-emerald-500', to: 'to-teal-600' },
-    { label: 'Add Stock',      icon: Package,      path: '/inventory',  from: 'from-purple-500',  to: 'to-violet-600' },
-    { label: 'New Purchase',   icon: ShoppingCart, path: '/purchases',  from: 'from-amber-500',   to: 'to-orange-500' },
-    { label: 'Add Expense',    icon: IndianRupee,  path: '/expenses',   from: 'from-rose-500',    to: 'to-red-600' },
-    { label: 'New Order',      icon: PlusCircle,   path: '/orders',     from: 'from-slate-600',   to: 'to-slate-800' },
+    { label: t('menu.Customers', 'Add Customer'),   icon: Users,        path: '/customers',  from: 'from-blue-500',    to: 'to-blue-700' },
+    { label: t('menu.Invoices', 'Create Invoice'), icon: Receipt,      path: '/sales',      from: 'from-emerald-500', to: 'to-teal-600' },
+    { label: t('menu.Inventory', 'Add Stock'),      icon: Package,      path: '/inventory',  from: 'from-purple-500',  to: 'to-violet-600' },
+    { label: t('menu.Purchases', 'New Purchase'),   icon: ShoppingCart, path: '/purchases',  from: 'from-amber-500',   to: 'to-orange-500' },
+    { label: t('menu.Expenses', 'Add Expense'),    icon: IndianRupee,  path: '/expenses',   from: 'from-rose-500',    to: 'to-red-600' },
+    { label: t('menu.Orders', 'New Order'),      icon: PlusCircle,   path: '/orders',     from: 'from-slate-600',   to: 'to-slate-800' },
   ];
 
   if (isLoading) return (
@@ -129,12 +132,12 @@ export default function Dashboard() {
             <p className="text-blue-200 font-semibold text-sm uppercase tracking-widest mb-1">{greeting} 👋</p>
             <h1 className="text-3xl font-bold text-white tracking-tight">{user?.name || 'Admin'}</h1>
             <p className="text-blue-200/80 mt-2 text-sm font-medium">
-              {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date().toLocaleDateString(i18n.language === 'ta' ? 'ta-IN' : 'en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-5 py-3">
-              <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider">Today's Revenue</p>
+              <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider">{t('dashboard.metrics.totalRevenue', "Today's Revenue")}</p>
               <p className="text-white text-2xl font-bold mt-0.5">₹{todayRevenue.toLocaleString('en-IN')}</p>
             </div>
             <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
@@ -186,8 +189,8 @@ export default function Dashboard() {
             <Zap className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 leading-tight">Quick Actions</h2>
-            <p className="text-xs text-slate-400 font-medium">Jump to any module in one click</p>
+            <h2 className="text-lg font-bold text-slate-900 leading-tight">{t('dashboard.quickActions', 'Quick Actions')}</h2>
+            <p className="text-xs text-slate-400 font-medium">{t('dashboard.jumpTo', 'Jump to any module in one click')}</p>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -217,12 +220,12 @@ export default function Dashboard() {
                 <BarChart2 className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 leading-tight">Recent Orders</h2>
-                <p className="text-xs text-slate-400 font-medium">Latest activity</p>
+                <h2 className="text-lg font-bold text-slate-900 leading-tight">{t('dashboard.recentOrders', 'Recent Orders')}</h2>
+                <p className="text-xs text-slate-400 font-medium">{t('dashboard.latestActivity', 'Latest activity')}</p>
               </div>
             </div>
             <Link to="/orders" className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3.5 py-1.5 rounded-xl transition-colors">
-              View all <ArrowRight className="h-4 w-4" />
+              {t('common.viewAll', 'View all')} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -249,7 +252,7 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{act.action}</p>
-                      <p className="text-xs text-slate-400 mt-0.5 font-medium">{act.time}</p>
+                      <p className="text-xs text-slate-400 mt-0.5 font-medium">{new Date(act.time).toLocaleString('en-IN')}</p>
                     </div>
                   </div>
                   <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
@@ -267,12 +270,12 @@ export default function Dashboard() {
                 <AlertTriangle className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 leading-tight">Stock Alerts</h2>
-                <p className="text-xs text-slate-400 font-medium">Items running low</p>
+                <h2 className="text-lg font-bold text-slate-900 leading-tight">{t('dashboard.metrics.stockAlerts', 'Stock Alerts')}</h2>
+                <p className="text-xs text-slate-400 font-medium">{t('dashboard.itemsRunningLow', 'Items running low')}</p>
               </div>
             </div>
             <Link to="/inventory" className="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3.5 py-1.5 rounded-xl transition-colors">
-              Manage <ArrowRight className="h-4 w-4" />
+              {t('common.manage', 'Manage')} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 

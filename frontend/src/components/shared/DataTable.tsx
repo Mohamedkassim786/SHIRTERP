@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import {  Search, Plus, ChevronLeft, ChevronRight, AlertCircle  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Column {
   key: string;
@@ -22,6 +23,7 @@ interface DataTableProps {
 }
 
 export function DataTable({ columns, data, onAdd, onEdit, isLoading, error, addLabel = 'Add New' }: DataTableProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const ROWS_PER_PAGE = 10;
@@ -52,7 +54,7 @@ export function DataTable({ columns, data, onAdd, onEdit, isLoading, error, addL
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search..."
+            placeholder={t('common.search', 'Search...')}
             value={search}
             onChange={handleSearch}
             className="pl-9 h-10 bg-white border-slate-200 text-sm rounded-xl"
@@ -124,7 +126,7 @@ export function DataTable({ columns, data, onAdd, onEdit, isLoading, error, addL
                       <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center">
                         <Search className="h-5 w-5 text-slate-300" />
                       </div>
-                      <p className="text-sm font-semibold text-slate-500">No records found</p>
+                      <p className="text-sm font-semibold text-slate-500">{t('common.noRecords', 'No records found')}</p>
                       {search && <p className="text-xs text-slate-400">Try a different search term</p>}
                     </div>
                   </TableCell>

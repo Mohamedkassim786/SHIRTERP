@@ -1,24 +1,708 @@
 {
-  "login": {
-    "title": "Login to ERP",
-    "email": "Email Address",
-    "password": "Password",
-    "submit": "Login",
-    "error": "Invalid email or password"
-  },
   "menu": {
-    "dashboard": "Dashboard",
-    "orders": "Orders",
-    "production": "Production",
-    "inventory": "Inventory",
-    "sales": "Sales",
-    "hr": "HR & Payroll",
-    "accounts": "Accounts",
-    "reports": "Reports",
-    "settings": "Settings",
-    "logout": "Logout"
+    "Core": "Core",
+    "Operations": "Operations",
+    "Finance_HR": "Finance & HR",
+    "System": "System",
+    "Dashboard": "Dashboard",
+    "Customers": "Customers",
+    "Vendors": "Vendors",
+    "Inventory": "Inventory",
+    "Orders": "Orders",
+    "Purchases": "Purchases",
+    "Production": "Production",
+    "Invoices": "Invoices",
+    "Expenses": "Expenses",
+    "Accounts": "Accounts",
+    "HR_Payroll": "HR & Payroll",
+    "Reports": "Reports",
+    "Settings": "Settings",
+    "Logout": "Logout",
+    "E_WayBills": "E-Way Bills"
+  },
+  "dashboard": {
+    "title": "Dashboard Overview",
+    "metrics": {
+      "totalRevenue": "Total Revenue",
+      "pendingOrders": "Pending Orders",
+      "activeProduction": "Active Production",
+      "stockAlerts": "Stock Alerts",
+      "thisMonth": "this month",
+      "needsAction": "needs action",
+      "batches": "batches",
+      "itemsLow": "items low"
+    },
+    "recentOrders": "Recent Orders",
+    "recentInvoices": "Recent Invoices",
+    "orderNo": "Order No",
+    "customer": "Customer",
+    "status": "Status",
+    "date": "Date",
+    "invoiceNo": "Invoice No",
+    "amount": "Amount",
+    "quickActions": "Quick Actions",
+    "jumpTo": "Jump to any module in one click",
+    "latestActivity": "Latest activity",
+    "itemsRunningLow": "Items running low"
+  },
+  "sales": {
+    "title": "Sales Invoices",
+    "generateInvoice": "Generate Sales Invoice",
+    "columns": {
+      "invoiceNo": "Invoice No",
+      "customer": "Customer",
+      "items": "Items",
+      "total": "Invoice Total (₹)",
+      "discount": "Discount",
+      "netPayable": "Net Payable (₹)",
+      "paid": "Paid (₹)",
+      "balance": "Balance (₹)",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "actions": {
+      "print": "Print",
+      "printOffer": "Print Offer",
+      "receivePayment": "Receive Payment",
+      "editDiscount": "Edit Discount",
+      "setDiscount": "Set Discount",
+      "viewHistory": "View History"
+    },
+    "invoices": {
+      "title": "Sales Invoices",
+      "form": {
+        "title": "Generate Sales Invoice",
+        "customer": "Customer *",
+        "selectCustomer": "Select Customer",
+        "invoiceItems": "Invoice Items *",
+        "shirt": "Shirt",
+        "price": "Price (₹)",
+        "gst": "GST%",
+        "grandTotal": "Grand Total:",
+        "create": "Create Invoice",
+        "creating": "Creating..."
+      },
+      "history": {
+        "title": "Payment History -",
+        "originalTotal": "Original Total",
+        "totalPaid": "Total Paid",
+        "balanceDue": "Balance Due",
+        "receiptNo": "Receipt No.",
+        "method": "Method",
+        "amount": "Amount (₹)",
+        "action": "Action",
+        "noPayments": "No payments recorded yet."
+      }
+    }
+  },
+  "customers": {
+    "title": "Customers",
+    "add": "Add Customer",
+    "cols": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "location": "Location",
+      "balance": "Balance",
+      "status": "Status",
+      "actions": "Actions",
+      "date": "Date",
+      "amount": "Amount",
+      "type": "TYPE",
+      "outstanding": "OUTSTANDING (₹)"
+    },
+    "kpi": {
+      "total": "Total Customers",
+      "marketDues": "Market Dues",
+      "followUps": "Pending Follow-ups"
+    },
+    "directory": "Customer Directory",
+    "profile": {
+      "title": "Customer Profile",
+      "phone": "PHONE NUMBER",
+      "gst": "GST NUMBER",
+      "financials": "Financials",
+      "outstanding": "CURRENT OUTSTANDING",
+      "revenue": "LIFETIME REVENUE",
+      "reminders": "Follow-up Reminders",
+      "addReminder": "Add Reminder",
+      "tabs": {
+        "invoices": "Invoices",
+        "payments": "Payments",
+        "reminders": "Reminders"
+      }
+    },
+    "form": {
+      "name": "Name *",
+      "type": "Customer Type",
+      "retail": "Retail",
+      "wholesale": "Wholesale",
+      "distributor": "Distributor",
+      "save": "Save Customer"
+    }
+  },
+  "suppliers": {
+    "title": "Vendors",
+    "add": "Add Vendor",
+    "cols": {
+      "name": "VENDOR NAME",
+      "phone": "Phone",
+      "email": "Email",
+      "location": "Location",
+      "balance": "Balance",
+      "status": "Status",
+      "actions": "Actions",
+      "date": "Date",
+      "amount": "Amount",
+      "category": "CATEGORY",
+      "weOwe": "WE OWE (₹)"
+    },
+    "kpi": {
+      "total": "Total Vendors",
+      "outstanding": "Total Outstanding (To Pay)"
+    },
+    "directory": "Vendor Directory",
+    "addNew": "Add New Vendor",
+    "edit": "Edit Vendor",
+    "profile": {
+      "title": "Vendor Profile",
+      "outstanding": "Outstanding",
+      "weOwe": "WE OWE THEM",
+      "recordPayment": "Record Payment",
+      "tabs": {
+        "purchase": "Purchase History",
+        "payment": "Payment History"
+      }
+    },
+    "form": {
+      "name": "Vendor Name *",
+      "category": "Category",
+      "general": "General",
+      "fabric": "Fabric",
+      "thread": "Thread",
+      "packaging": "Packaging",
+      "machinery": "Machinery",
+      "save": "Save Vendor"
+    }
+  },
+  "inventory": {
+    "fgTitle": "Finished Goods",
+    "rmTitle": "Raw Materials",
+    "addStock": "Add Stock",
+    "cols": {
+      "name": "MATERIAL NAME",
+      "location": "LOCATION",
+      "currentStock": "CURRENT STOCK",
+      "minAlert": "MIN ALERT LEVEL",
+      "ledger": "Ledger"
+    },
+    "title": "Inventory Management",
+    "adjustStock": "Adjust Stock",
+    "kpi": {
+      "total": "Total Materials Tracked",
+      "lowStock": "Low Stock Alerts"
+    },
+    "directory": "Materials Directory",
+    "addNew": "Add New Raw Material",
+    "form": {
+      "name": "Material Name *",
+      "unit": "Unit *",
+      "selectUnit": "Select Unit",
+      "minStock": "Min Stock Alert Level *",
+      "location": "Location / Warehouse Shelf (Optional)",
+      "locPlaceholder": "e.g. Rack A3"
+    }
+  },
+  "orders": {
+    "title": "Customer Orders",
+    "variants": "variants",
+    "pushToProduction": "Push to Production",
+    "convertToInvoice": "Convert to Invoice",
+    "invoiced": "Invoiced",
+    "inProduction": "In Production",
+    "cols": {
+      "orderNumber": "ORDER NUMBER",
+      "customer": "CUSTOMER",
+      "items": "ITEMS",
+      "deliveryDate": "DELIVERY DATE"
+    },
+    "form": {
+      "title": "Create Customer Order",
+      "customer": "Customer *",
+      "selectCustomer": "Select Customer",
+      "deliveryDate": "Delivery Date",
+      "orderItems": "Order Items *",
+      "addRow": "Add Row",
+      "shirtModel": "Shirt Model",
+      "color": "Color",
+      "size": "Size",
+      "qty": "Qty",
+      "unitPrice": "Unit Price (₹)",
+      "creating": "Creating...",
+      "create": "Create Order"
+    }
+  },
+  "purchases": {
+    "title": "Purchase Orders",
+    "materials": "materials",
+    "receiveGoods": "Receive Goods (GRN)",
+    "received": "Received",
+    "cols": {
+      "poNumber": "PO NUMBER",
+      "supplier": "SUPPLIER",
+      "items": "ITEMS",
+      "total": "TOTAL (₹)"
+    },
+    "form": {
+      "title": "Create Purchase Order",
+      "supplier": "Supplier *",
+      "selectSupplier": "Select Supplier",
+      "notes": "Notes",
+      "materialsToOrder": "Materials to Order *",
+      "material": "Material",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price (₹)",
+      "totalAmount": "Total Amount:",
+      "creating": "Creating...",
+      "create": "Create PO"
+    },
+    "grn": {
+      "title": "Process GRN for",
+      "desc": "This will mark all goods as received and automatically increase raw material stock in the inventory.",
+      "processing": "Processing...",
+      "confirm": "Confirm Receipt"
+    }
+  },
+  "production": {
+    "title": "Production Tracker",
+    "pcs": "pcs",
+    "notStarted": "Not Started",
+    "updateStage": "Update Stage",
+    "activeOrders": "Active Work Orders",
+    "kpi": {
+      "total": "Total Work Orders",
+      "running": "Running / Active",
+      "target": "Target Qty (Active)"
+    },
+    "cols": {
+      "woNumber": "WORK ORDER NO",
+      "linkedOrder": "LINKED ORDER",
+      "targetQty": "TARGET QTY",
+      "stageProgress": "STAGE PROGRESS"
+    },
+    "form": {
+      "title": "Update Production Stage -",
+      "stage": "Stage",
+      "qtyIn": "Quantity In",
+      "qtyOut": "Quantity Out",
+      "rejected": "Rejected/Damage Quantity",
+      "save": "Save Stage"
+    }
+  },
+  "eway": {
+    "form": {
+      "title": "Generate E-Way Bill",
+      "linkInvoice": "Link to Invoice",
+      "noLinked": "No linked invoice",
+      "sellerGst": "Seller GSTIN *",
+      "buyerGst": "Buyer GSTIN",
+      "buyerName": "Buyer Name",
+      "buyerNamePh": "Customer / Company Name",
+      "buyerAddress": "Buyer Address",
+      "buyerAddressPh": "City, State",
+      "transportDetails": "Transport Details",
+      "vehicleNum": "Vehicle Number *",
+      "transportMode": "Transport Mode",
+      "transporterName": "Transporter Name",
+      "transporterGst": "Transporter GSTIN",
+      "route": "Route",
+      "fromPlace": "From Place *",
+      "toPlace": "To Place *",
+      "distance": "Distance (KM)",
+      "goodsDetails": "Goods Details",
+      "goodsDesc": "Goods Description",
+      "hsnCode": "HSN Code",
+      "totalValue": "Total Taxable Value (₹) *",
+      "generate": "Generate E-Way Bill",
+      "generating": "Generating..."
+    },
+    "title": "E-Way Bills",
+    "cancelled": "Cancelled",
+    "cols": {
+      "ewbNo": "EWB NO.",
+      "invoice": "INVOICE",
+      "vehicleNo": "VEHICLE NO.",
+      "route": "ROUTE",
+      "mode": "MODE",
+      "value": "VALUE (₹)",
+      "validUntil": "VALID UNTIL"
+    }
+  },
+  "expenses": {
+    "title": "Expense Management",
+    "categoriesTitle": "Expense Categories",
+    "newCategory": "New category name...",
+    "expensesCount": "expenses",
+    "kpi": {
+      "thisMonth": "This Month",
+      "filteredTotal": "Filtered Total",
+      "topCategory": "Top Category (Month)"
+    },
+    "tabs": {
+      "expenses": "Expenses",
+      "categories": "Categories"
+    },
+    "filter": {
+      "from": "From",
+      "to": "To",
+      "clear": "Clear Filter"
+    },
+    "cols": {
+      "category": "CATEGORY",
+      "description": "DESCRIPTION",
+      "amount": "AMOUNT",
+      "paidBy": "PAID BY"
+    },
+    "form": {
+      "addTitle": "Add Expense",
+      "editTitle": "Edit Expense",
+      "category": "Category *",
+      "date": "Date *",
+      "desc": "Description *",
+      "descPh": "e.g. Monthly rent payment",
+      "amount": "Amount (₹) *",
+      "paymentMethod": "Payment Method",
+      "reference": "Reference / Voucher No."
+    }
+  },
+  "finance": {
+    "title": "Accounts & Finance",
+    "newTxn": "New Transaction",
+    "newAcc": "New Account",
+    "tabs": {
+      "overview": "Overview",
+      "daybook": "Daybook",
+      "accounts": "Accounts"
+    },
+    "kpi": {
+      "revenue": "Total Revenue",
+      "expenses": "Total Expenses",
+      "profit": "Net Profit",
+      "assets": "Total Assets (Cash/Bank)"
+    },
+    "balanceSheet": "Balance Sheet Summary",
+    "assets": "Assets",
+    "totalAssets": "Total Assets",
+    "liabilities": "Liabilities & Equity",
+    "totalLiabilities": "Total Liabilities",
+    "cols": {
+      "accName": "Account Name",
+      "type": "Type",
+      "balance": "Current Balance",
+      "system": "System",
+      "desc": "Description",
+      "debit": "Debit Account (In)",
+      "credit": "Credit Account (Out)",
+      "amount": "Amount"
+    },
+    "system": "System",
+    "custom": "Custom",
+    "accForm": {
+      "title": "Create Ledger Account",
+      "name": "Account Name *",
+      "namePh": "e.g. SBI Checking, Rent Expense",
+      "type": "Account Type *",
+      "asset": "Asset (Bank, Cash, Inventory)",
+      "liability": "Liability (Loans, Payables)",
+      "equity": "Equity (Capital)",
+      "revenue": "Revenue (Sales, Income)",
+      "expense": "Expense (Rent, Salaries, COGS)",
+      "create": "Create Account"
+    },
+    "txnForm": {
+      "title": "New Journal Transaction",
+      "date": "Date *",
+      "amount": "Amount (₹) *",
+      "debit": "Debit (Money received by) *",
+      "credit": "Credit (Money given by) *",
+      "selectAcc": "Select Account",
+      "desc": "Description *",
+      "descPh": "e.g. Paid office rent",
+      "ref": "Reference No (Optional)",
+      "refPh": "Invoice / Cheque No",
+      "record": "Record Transaction"
+    }
+  },
+  "hr": {
+    "title": "HR & Payroll",
+    "tabs": {
+      "employees": "Employees",
+      "attendance": "Attendance",
+      "leave": "Leave",
+      "payroll": "Payroll"
+    },
+    "cols": {
+      "name": "Name",
+      "designation": "Designation",
+      "department": "Department",
+      "salary": "Salary",
+      "employee": "Employee",
+      "baseSalary": "Base Salary",
+      "deductions": "Deductions",
+      "bonus": "Bonus",
+      "netPay": "Net Pay"
+    },
+    "attendance": {
+      "title": "Daily Attendance",
+      "save": "Save Attendance",
+      "present": "Present",
+      "absent": "Absent",
+      "half_day": "Half",
+      "leave": "Leave"
+    },
+    "payroll": {
+      "month": "Month",
+      "year": "Year",
+      "generate": "Generate Payroll",
+      "markPaid": "Mark Paid",
+      "paid": "Paid",
+      "status": {
+        "PENDING": "PENDING",
+        "PAID": "PAID"
+      }
+    }
   },
   "common": {
-    "language": "Language"
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "print": "Print",
+    "submit": "Submit",
+    "add": "Add",
+    "create": "Create",
+    "view": "View",
+    "search": "Search...",
+    "filter": "Filter",
+    "clear": "Clear",
+    "status": "STATUS",
+    "date": "DATE",
+    "amount": "AMOUNT",
+    "total": "Total",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "back": "Back",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "noRecords": "No records found",
+    "actions": "Actions",
+    "generate": "Generate",
+    "balance": "Balance",
+    "paid": "Paid",
+    "pending": "Pending",
+    "completed": "Completed",
+    "active": "Active",
+    "inactive": "Inactive",
+    "all": "All",
+    "new": "New",
+    "profile": "Profile",
+    "viewAll": "View all",
+    "manage": "Manage",
+    "addNew": "Add New",
+    "invoiceNo": "INVOICE NO",
+    "method": "METHOD",
+    "refNo": "REFERENCE NO",
+    "poNo": "PO NO",
+    "saving": "Saving...",
+    "optionalPlaceholder": "Optional",
+    "saved": "Saved!"
+  },
+  "reports": {
+    "title": "Reports",
+    "print": "Print / Export",
+    "tabs": {
+      "pl": "📊 P&L Report",
+      "sales": "🛒 Sales Report",
+      "purchase": "📦 Purchase Report",
+      "stock": "📋 Stock Report",
+      "gst": "🧾 GST Report",
+      "outstanding": "💰 Outstanding",
+      "customer": "👥 Customer Report"
+    },
+    "fromDate": "From Date",
+    "toDate": "To Date",
+    "generating": "Generating report...",
+    "kpi": {
+      "revenue": "Total Revenue",
+      "purchases": "Material Cost (Purchases)",
+      "grossProfit": "Gross Profit",
+      "expenses": "Total Expenses",
+      "netProfit": "Net Profit / Loss"
+    },
+    "sales": {
+      "total": "Total Sales (Period)",
+      "cols": {
+        "invoice": "Invoice #",
+        "date": "Date",
+        "customer": "Customer",
+        "subTotal": "Sub Total",
+        "gst": "GST",
+        "total": "Total",
+        "status": "Status"
+      },
+      "status": {
+        "PAID": "PAID",
+        "UNPAID": "UNPAID",
+        "PARTIALLY_PAID": "PARTIAL"
+      }
+    },
+    "purchase": {
+      "total": "Total Purchases (Period)",
+      "items": "items",
+      "cols": {
+        "po": "PO #",
+        "date": "Date",
+        "supplier": "Supplier",
+        "materials": "Materials",
+        "total": "Total",
+        "status": "Status"
+      },
+      "status": {
+        "COMPLETED": "COMPLETED",
+        "PENDING": "PENDING"
+      }
+    },
+    "stock": {
+      "lowStockMsg": "materials are below minimum stock level",
+      "raw": "Raw Materials",
+      "finished": "Finished Goods",
+      "pcs": "pcs",
+      "cols": {
+        "material": "Material",
+        "unit": "Unit",
+        "currentStock": "Current Stock",
+        "minLevel": "Min Level",
+        "model": "Model",
+        "color": "Color",
+        "size": "Size",
+        "quantity": "Quantity"
+      }
+    },
+    "gst": {
+      "output": "Output GST (Collected)",
+      "input": "Input GST (Paid on Purchases)",
+      "net": "Net GST Payable",
+      "cols": {
+        "invoice": "Invoice #",
+        "date": "Date",
+        "customer": "Customer",
+        "taxable": "Taxable Value",
+        "gst": "GST Amount",
+        "total": "Invoice Total"
+      }
+    },
+    "out": {
+      "customerOutstanding": "Customer Outstanding",
+      "vendorOutstanding": "Vendor Outstanding",
+      "customerDues": "Customer Dues",
+      "vendorDues": "Vendor Dues",
+      "cols": {
+        "customer": "Customer",
+        "supplier": "Supplier",
+        "phone": "Phone",
+        "outstanding": "Outstanding"
+      }
+    },
+    "customer": {
+      "cols": {
+        "name": "Customer Name",
+        "phone": "Phone",
+        "orders": "Orders",
+        "revenue": "Total Revenue",
+        "outstanding": "Outstanding"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "company": "🏢 Company Profile",
+      "users": "👤 User Management",
+      "logs": "📋 Activity Logs",
+      "backups": "💾 Database Backup"
+    },
+    "companyProfile": "Company Profile",
+    "companyName": "Company Name",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "gstin": "GSTIN",
+    "cin": "CIN",
+    "invoicePrefix": "Invoice Prefix (e.g. INV)",
+    "invoiceFooter": "Invoice Footer Text",
+    "termsConditions": "Terms & Conditions",
+    "bankDetails": "Bank Details for Invoice",
+    "razorpayKeyId": "Razorpay Key ID (for Payment Link)",
+    "razorpaySecret": "Razorpay Secret",
+    "save": "Save Settings",
+    "users": {
+      "title": "User Management",
+      "addUser": "Add User",
+      "addNew": "Add New User",
+      "createUser": "Create User",
+      "selectRole": "Select Role",
+      "password": "Password",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "cols": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "logs": {
+      "title": "System Activity Logs",
+      "system": "System",
+      "cols": {
+        "timestamp": "Timestamp",
+        "user": "User",
+        "action": "Action",
+        "entity": "Module / Entity"
+      },
+      "action": {
+        "CREATED": "CREATED",
+        "UPDATED": "UPDATED",
+        "DELETED": "DELETED"
+      },
+      "entities": {
+        "invoices": "Invoices",
+        "invoice": "Invoice",
+        "discount": "Discount",
+        "settle": "Settlement",
+        "payments": "Payments",
+        "ewayBills": "E-Way Bills",
+        "ewayBill": "E-Way Bill",
+        "cancel": "Cancelled",
+        "customers": "Customers",
+        "employees": "Employees"
+      }
+    },
+    "backup": {
+      "title": "Database Backup",
+      "desc": "Download a complete JSON export of all core business data (Customers, Orders, Invoices, Work Orders, Inventory, etc.). Keep this file secure as it contains sensitive business information.",
+      "download": "Download Full Backup (JSON)"
+    }
   }
 }

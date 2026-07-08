@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 export const getSalesInvoices = async (req: Request, res: Response) => {
   try {
     const data = await prisma.salesInvoice.findMany({
-      include: { customer: true, items: { include: { model: true, color: true, size: true } } },
+      include: { 
+        customer: true, 
+        items: { include: { model: true, color: true, size: true } },
+        payments: { orderBy: { date: 'asc' } }
+      },
       orderBy: { createdAt: 'desc' }
     });
     res.json(data);
@@ -78,6 +82,7 @@ export const createSalesInvoice = async (req: Request, res: Response) => {
           subTotal,
           gstAmount,
           totalAmount,
+          netPayable: totalAmount,
           items: { create: invoiceItemsData }
         },
         include: { items: true, customer: true }
@@ -142,56 +147,198 @@ export const createSalesInvoice = async (req: Request, res: Response) => {
 
 export const receivePayment = async (req: Request, res: Response) => {
   try {
-    const { customerId, amount, method, reference } = req.body;
-    
+    const { customerId, invoiceId, amount, method, reference, notes } = req.body;
+
+    if (!customerId || !amount || !method) {
+      return res.status(400).json({ message: 'customerId, amount and method are required.' });
+    }
+
     const result = await prisma.$transaction(async (tx: any) => {
+      // 1. Generate receipt number: RCP-YYYY-NNNN
+      const count = await tx.customerPayment.count();
+      const year = new Date().getFullYear();
+      const receiptNumber = `RCP-${year}-${String(count + 1).padStart(4, '0')}`;
+
+      // 2. Create payment record
       const payment = await tx.customerPayment.create({
         data: {
+          receiptNumber,
           customerId: Number(customerId),
+          invoiceId: invoiceId ? Number(invoiceId) : null,
           amount: Number(amount),
           method,
-          reference
+          reference: reference || null,
+          notes: notes || null,
+        },
+        include: {
+          customer: true,
+          invoice: {
+            include: { items: { include: { model: true, color: true, size: true } } }
+          }
         }
       });
 
+      // 3. Reduce customer outstanding balance
       await tx.customer.update({
         where: { id: Number(customerId) },
         data: { outstandingBalance: { decrement: Number(amount) } }
       });
 
-      // ---- AUTO SYNC TO FINANCE ----
+      // 4. If linked to an invoice, update paidAmount and status
+      if (invoiceId) {
+        const invoice = await tx.salesInvoice.findUnique({ where: { id: Number(invoiceId) } });
+        if (invoice) {
+          const newPaidAmount = invoice.paidAmount + Number(amount);
+          let newStatus = 'PARTIAL';
+          let discountAmt = invoice.discountAmount; // Default keep existing
+          
+          // Use netPayable for threshold, default to totalAmount if 0
+          const threshold = invoice.netPayable > 0 ? invoice.netPayable : invoice.totalAmount;
+          
+          if (newPaidAmount >= threshold) {
+            newStatus = 'PAID';
+            discountAmt = invoice.proposedDiscountAmt; // lock in the proposed discount
+          }
+          await tx.salesInvoice.update({
+            where: { id: Number(invoiceId) },
+            data: { 
+              paidAmount: newPaidAmount, 
+              status: newStatus,
+              discountAmount: discountAmt
+            }
+          });
+        }
+      }
+
+      // 5. Auto sync to Finance ledger
       const cashAcc = await tx.ledgerAccount.findFirst({ where: { name: 'Cash', isSystem: true } });
-      const arAcc = await tx.ledgerAccount.findFirst({ where: { name: 'Accounts Receivable', isSystem: true } });
-      
+      const arAcc   = await tx.ledgerAccount.findFirst({ where: { name: 'Accounts Receivable', isSystem: true } });
+
       if (cashAcc && arAcc) {
-        // Customer Payment: Debit Cash (increase asset), Credit Accounts Receivable (decrease asset)
         await tx.journalTransaction.create({
           data: {
             date: new Date(),
             amount: Number(amount),
-            description: `Payment from Customer ID: ${customerId}`,
-            reference: reference || 'Customer Payment',
+            description: `Payment from Customer ID: ${customerId} | Receipt: ${receiptNumber}`,
+            reference: receiptNumber,
             debitAccountId: cashAcc.id,
             creditAccountId: arAcc.id
           }
         });
-        
-        await tx.ledgerAccount.update({
-          where: { id: cashAcc.id },
-          data: { balance: { increment: Number(amount) } }
-        });
-        
-        await tx.ledgerAccount.update({
-          where: { id: arAcc.id },
-          data: { balance: { decrement: Number(amount) } }
-        });
+        await tx.ledgerAccount.update({ where: { id: cashAcc.id }, data: { balance: { increment: Number(amount) } } });
+        await tx.ledgerAccount.update({ where: { id: arAcc.id  }, data: { balance: { decrement: Number(amount) } } });
       }
 
       return payment;
     });
 
     res.status(201).json(result);
-  } catch (error) {
-    res.status(400).json({ message: 'Error processing payment' });
+  } catch (error: any) {
+    console.error('receivePayment error:', error);
+    res.status(400).json({ message: 'Error processing payment', error: error.message });
+  }
+};
+
+// GET /api/sales/payments/:paymentId/receipt
+export const getPaymentReceipt = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const paymentId = Number(req.params.paymentId);
+    const payment = await prisma.customerPayment.findUnique({
+      where: { id: paymentId },
+      include: {
+        customer: true,
+        invoice: {
+          include: { items: { include: { model: true, color: true, size: true } } }
+        }
+      }
+    });
+
+    if (!payment) {
+      res.status(404).json({ message: 'Receipt not found' });
+      return;
+    }
+
+    // Compute remaining balance from invoice if linked
+    let remainingBalance: number | null = null;
+    if (payment.invoice) {
+      remainingBalance = payment.invoice.totalAmount - payment.invoice.paidAmount;
+    }
+
+    res.json({ ...payment, remainingBalance });
+  } catch (error: any) {
+    console.error('getPaymentReceipt error:', error);
+    res.status(500).json({ message: 'Error fetching receipt', error: error.message });
+  }
+};
+
+// PATCH /api/sales/invoices/:id/discount
+// Sets the proposed discount on the invoice. Does NOT record payment or change status.
+export const proposeDiscount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const invoiceId = Number(req.params.id);
+    const { discountPct, discountAmount } = req.body;
+
+    const invoice = await prisma.salesInvoice.findUnique({ where: { id: invoiceId } });
+    if (!invoice) {
+      res.status(404).json({ message: 'Invoice not found.' });
+      return;
+    }
+    
+    if (invoice.status === 'PAID') {
+      res.status(400).json({ message: 'Cannot propose discount on a fully paid invoice.' });
+      return;
+    }
+
+    let proposedDiscountAmt = 0;
+    let pct = Number(discountPct) || 0;
+
+    if (discountAmount !== undefined) {
+      proposedDiscountAmt = Number(discountAmount);
+    } else {
+      proposedDiscountAmt = parseFloat(((pct / 100) * invoice.totalAmount).toFixed(2));
+    }
+
+    const remainingBalance = invoice.totalAmount - invoice.paidAmount;
+    if (proposedDiscountAmt < 0 || proposedDiscountAmt > remainingBalance) {
+      res.status(400).json({ message: `Discount amount cannot exceed the remaining balance of ₹${remainingBalance.toFixed(2)}.` });
+      return;
+    }
+
+    const netPayable = parseFloat((invoice.totalAmount - proposedDiscountAmt).toFixed(2));
+
+    const updated = await prisma.salesInvoice.update({
+      where: { id: invoiceId },
+      data: {
+        proposedDiscountPct: pct,
+        proposedDiscountAmt,
+        netPayable
+      }
+    });
+
+    res.json(updated);
+  } catch (error: any) {
+    console.error('proposeDiscount error:', error);
+    res.status(500).json({ message: 'Error proposing discount', error: error.message });
+  }
+};
+
+
+// GET /api/sales/invoices/:id/settlement-print
+// Returns full invoice data including discountAmount for the printable settlement invoice
+export const getSettlementInvoice = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Number(req.params.id);
+    const invoice = await prisma.salesInvoice.findUnique({
+      where: { id },
+      include: {
+        customer: true,
+        items: { include: { model: true, color: true, size: true } },
+        payments: { orderBy: { date: 'asc' } }
+      }
+    });
+    if (!invoice) { res.status(404).json({ message: 'Invoice not found' }); return; }
+    res.json(invoice);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching settlement invoice', error: error.message });
   }
 };

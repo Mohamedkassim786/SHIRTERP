@@ -407,22 +407,30 @@ model FinishedGoodStockTxn {
 // -----------------------------------------------------------------------------
 
 model SalesInvoice {
-  id            Int           @id @default(autoincrement())
-  invoiceNumber String        @unique
-  orderId       Int?
-  order         CustomerOrder? @relation(fields: [orderId], references: [id])
-  customerId    Int
-  customer      Customer      @relation(fields: [customerId], references: [id])
-  subTotal      Float         @default(0.0)
-  gstAmount     Float         @default(0.0)
-  totalAmount   Float         @default(0.0)
-  status        String        @default("UNPAID") // UNPAID, PARTIAL, PAID
-  items         InvoiceItem[]
-  date          DateTime      @default(now())
-  createdAt     DateTime      @default(now())
+  id                  Int               @id @default(autoincrement())
+  invoiceNumber       String            @unique
+  orderId             Int?
+  order               CustomerOrder?    @relation(fields: [orderId], references: [id])
+  customerId          Int
+  customer            Customer          @relation(fields: [customerId], references: [id])
+  subTotal            Float             @default(0.0)
+  gstAmount           Float             @default(0.0)
+  totalAmount         Float             @default(0.0)
+  paidAmount          Float             @default(0.0)    // Cumulative payments received
+  discountAmount      Float             @default(0.0)    // Locked-in discount (set when PAID)
+  proposedDiscountPct Float             @default(0.0)    // % proposed by admin (editable until PAID)
+  proposedDiscountAmt Float             @default(0.0)    // = totalAmount × proposedDiscountPct / 100
+  netPayable          Float             @default(0.0)    // = totalAmount − proposedDiscountAmt (0 means no discount set)
+  status              String            @default("UNPAID") // UNPAID, PARTIAL, PAID
+  items               InvoiceItem[]
+  payments            CustomerPayment[]
+  ewayBills           EWayBill[]
+  date                DateTime          @default(now())
+  createdAt           DateTime          @default(now())
 
   @@map("sales_invoices")
 }
+
 
 model InvoiceItem {
   id         Int          @id @default(autoincrement())
@@ -443,20 +451,52 @@ model InvoiceItem {
 }
 
 model CustomerPayment {
-  id          Int      @id @default(autoincrement())
-  customerId  Int
-  customer    Customer @relation(fields: [customerId], references: [id])
-  amount      Float
-  method      String   // CASH, UPI, BANK_TRANSFER, CHEQUE
-  reference   String?
-  date        DateTime @default(now())
+  id            Int           @id @default(autoincrement())
+  receiptNumber String?       @unique // e.g. RCP-2025-0001  
+  customerId    Int
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  invoiceId     Int?          // Optional: linked invoice
+  invoice       SalesInvoice? @relation(fields: [invoiceId], references: [id])
+  amount        Float
+  method        String        // CASH, UPI, BANK_TRANSFER, CHEQUE
+  reference     String?
+  notes         String?
+  date          DateTime      @default(now())
   
   @@map("customer_payments")
 }
 
 // =============================================================================
-// EXPENSE MANAGEMENT
+// E-WAY BILL
 // =============================================================================
+
+model EWayBill {
+  id               Int           @id @default(autoincrement())
+  ewbNumber        String        @unique // EWB-YYYY-NNNN
+  invoiceId        Int?
+  invoice          SalesInvoice? @relation(fields: [invoiceId], references: [id])
+  sellerGst        String
+  buyerGst         String?
+  buyerName        String?
+  buyerAddress     String?
+  vehicleNumber    String
+  transporterName  String?
+  transporterId    String?       // Transporter GSTIN
+  fromPlace        String
+  toPlace          String
+  distance         Int?          // in KM
+  transportMode    String        @default("ROAD") // ROAD, RAIL, AIR, SHIP
+  goodsDescription String?
+  totalValue       Float         @default(0.0)
+  hsnCode          String?
+  status           String        @default("ACTIVE") // ACTIVE, CANCELLED
+  validUntil       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@map("eway_bills")
+}
+
 
 model ExpenseCategory {
   id       Int       @id @default(autoincrement())

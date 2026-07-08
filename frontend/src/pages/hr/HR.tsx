@@ -1,3 +1,5 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Users, Calendar, CheckCircle, XCircle, DollarSign } from 'lucide-react';
+import {  Users, Calendar, CheckCircle, XCircle, DollarSign  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 type Tab = 'employees' | 'attendance' | 'leave' | 'payroll';
@@ -18,6 +21,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function HR() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>('employees');
   const [isEmpOpen, setIsEmpOpen] = useState(false);
@@ -81,15 +85,15 @@ export default function HR() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">HR & Payroll</h1>
+      <h1 className="text-2xl font-bold text-slate-800">{t('hr.title', 'HR & Payroll')}</h1>
 
       <div className="flex flex-wrap gap-2 border-b pb-2">
-        {tabs.map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-t-lg font-medium text-sm capitalize ${tab === t ? 'bg-primary text-slate-900' : 'bg-white text-slate-400 hover:bg-slate-200'}`}>
-            {t === 'employees' && <Users className="h-4 w-4 inline mr-1" />}
-            {t === 'attendance' && <Calendar className="h-4 w-4 inline mr-1" />}
-            {t === 'payroll' && <DollarSign className="h-4 w-4 inline mr-1" />}
-            {t.charAt(0).toUpperCase() + t.slice(1)}
+        {tabs.map(tabKey => (
+          <button key={tabKey} onClick={() => setTab(tabKey)} className={`px-4 py-2 rounded-t-lg font-medium text-sm capitalize ${tab === tabKey ? 'bg-primary text-slate-900' : 'bg-white text-slate-400 hover:bg-slate-200'}`}>
+            {tabKey === 'employees' && <Users className="h-4 w-4 inline mr-1" />}
+            {tabKey === 'attendance' && <Calendar className="h-4 w-4 inline mr-1" />}
+            {tabKey === 'payroll' && <DollarSign className="h-4 w-4 inline mr-1" />}
+            {t(`hr.tabs.${tabKey}`, tabKey.charAt(0).toUpperCase() + tabKey.slice(1))}
           </button>
         ))}
       </div>
@@ -98,12 +102,12 @@ export default function HR() {
       {tab === 'employees' && (
         <DataTable
           columns={[
-            { key: 'name', label: 'Name' },
-            { key: 'designation', label: 'Designation' },
-            { key: 'department', label: 'Department', render: (r: any) => r.department?.name || '-' },
-            { key: 'phone', label: 'Phone' },
-            { key: 'salary', label: 'Salary', render: (r: any) => `₹${r.salary?.toLocaleString('en-IN')}` },
-            { key: 'isActive', label: 'Status', render: (r: any) => <Badge variant={r.isActive ? 'default' : 'secondary'}>{r.isActive ? 'Active' : 'Inactive'}</Badge> },
+            { key: 'name', label: t('hr.cols.name', 'Name') },
+            { key: 'designation', label: t('hr.cols.designation', 'Designation') },
+            { key: 'department', label: t('hr.cols.department', 'Department'), render: (r: any) => r.department?.name || '-' },
+            { key: 'phone', label: t('customers.cols.phone', 'Phone') },
+            { key: 'salary', label: t('hr.cols.salary', 'Salary'), render: (r: any) => `₹${r.salary?.toLocaleString('en-IN')}` },
+            { key: 'isActive', label: t('customers.cols.status', 'Status'), render: (r: any) => <Badge variant={r.isActive ? 'default' : 'secondary'}>{r.isActive ? 'Active' : 'Inactive'}</Badge> },
           ]}
           data={employees} searchKey="name" onAdd={() => openEmpDialog()} onEdit={openEmpDialog}
         />
@@ -113,15 +117,15 @@ export default function HR() {
       {tab === 'attendance' && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Daily Attendance</CardTitle>
+            <CardTitle>{t('hr.attendance.title', 'Daily Attendance')}</CardTitle>
             <div className="flex gap-3 items-center">
-              <Input type="date" className="w-40" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)} />
-              <Button onClick={() => attMutation.mutate()} disabled={attMutation.isPending}>Save Attendance</Button>
+              <AnimatedInput type="date" className="w-40" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)} />
+              <Button onClick={() => attMutation.mutate()} disabled={attMutation.isPending}>{t('hr.attendance.save', 'Save Attendance')}</Button>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {attendance.map((emp: any) => (
+              {(attendance as any[]).map((emp: any) => (
                 <div key={emp.id} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-lg">
                   <div>
                     <p className="font-medium text-sm">{emp.name}</p>
@@ -131,7 +135,7 @@ export default function HR() {
                     {['PRESENT', 'ABSENT', 'HALF_DAY', 'LEAVE'].map(s => (
                       <button key={s} onClick={() => setAttendanceRecords({ ...attendanceRecords, [emp.id]: s })}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${attendanceRecords[emp.id] === s ? STATUS_COLORS[s] + ' border-current' : 'border-slate-200 text-slate-500 hover:bg-white'}`}>
-                        {s === 'HALF_DAY' ? 'Half' : s.charAt(0) + s.slice(1).toLowerCase()}
+                        {t(`hr.attendance.${s.toLowerCase()}`, s === 'HALF_DAY' ? 'Half' : s.charAt(0) + s.slice(1).toLowerCase())}
                       </button>
                     ))}
                   </div>
@@ -173,26 +177,26 @@ export default function HR() {
       {tab === 'payroll' && (
         <div className="space-y-4">
           <div className="flex items-end gap-4 flex-wrap">
-            <div><Label className="text-xs">Month</Label>
-              <select className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm" value={payMonth} onChange={e => setPayMonth(Number(e.target.value))}>
+            <div><Label className="text-xs">{t('hr.payroll.month', 'Month')}</Label>
+              <AnimatedSelect className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm" value={payMonth} onChange={e => setPayMonth(Number(e.target.value))}>
                 {[...Array(12)].map((_, i) => <option key={i+1} value={i+1}>{new Date(2024, i, 1).toLocaleString('en-IN', { month: 'long' })}</option>)}
-              </select>
+              </AnimatedSelect>
             </div>
-            <div><Label className="text-xs">Year</Label><Input type="number" className="w-24" value={payYear} onChange={e => setPayYear(Number(e.target.value))} /></div>
-            <Button variant="outline" onClick={() => generatePayrollMutation.mutate()} disabled={generatePayrollMutation.isPending}>Generate Payroll</Button>
+            <div><Label className="text-xs">{t('hr.payroll.year', 'Year')}</Label><AnimatedInput type="number" className="w-24" value={payYear} onChange={e => setPayYear(Number(e.target.value))} /></div>
+            <Button variant="outline" onClick={() => generatePayrollMutation.mutate()} disabled={generatePayrollMutation.isPending}>{t('hr.payroll.generate', 'Generate Payroll')}</Button>
           </div>
           <DataTable
             columns={[
-              { key: 'employee', label: 'Employee', render: (r: any) => r.employee?.name },
-              { key: 'department', label: 'Department', render: (r: any) => r.employee?.department?.name || '-' },
-              { key: 'baseSalary', label: 'Base Salary', render: (r: any) => `₹${r.baseSalary?.toLocaleString('en-IN')}` },
-              { key: 'deductions', label: 'Deductions', render: (r: any) => <span className="text-red-500">-₹{r.deductions}</span> },
-              { key: 'bonus', label: 'Bonus', render: (r: any) => <span className="text-green-600">+₹{r.bonus}</span> },
-              { key: 'netPay', label: 'Net Pay', render: (r: any) => <span className="font-bold">₹{r.netPay?.toLocaleString('en-IN')}</span> },
-              { key: 'status', label: 'Status', render: (r: any) => <Badge variant={r.status === 'PAID' ? 'default' : 'secondary'}>{r.status}</Badge> },
+              { key: 'employee', label: t('hr.cols.employee', 'Employee'), render: (r: any) => r.employee?.name },
+              { key: 'department', label: t('hr.cols.department', 'Department'), render: (r: any) => r.employee?.department?.name || '-' },
+              { key: 'baseSalary', label: t('hr.cols.baseSalary', 'Base Salary'), render: (r: any) => `₹${r.baseSalary?.toLocaleString('en-IN')}` },
+              { key: 'deductions', label: t('hr.cols.deductions', 'Deductions'), render: (r: any) => <span className="text-red-500">-₹{r.deductions}</span> },
+              { key: 'bonus', label: t('hr.cols.bonus', 'Bonus'), render: (r: any) => <span className="text-green-600">+₹{r.bonus}</span> },
+              { key: 'netPay', label: t('hr.cols.netPay', 'Net Pay'), render: (r: any) => <span className="font-bold">₹{r.netPay?.toLocaleString('en-IN')}</span> },
+              { key: 'status', label: t('customers.cols.status', 'Status'), render: (r: any) => <Badge variant={r.status === 'PAID' ? 'default' : 'secondary'}>{String(t(`hr.payroll.status.${r.status}`, r.status))}</Badge> },
               { key: 'action', label: '', render: (r: any) => r.status !== 'PAID' ? (
-                <Button size="sm" onClick={() => { setSelectedSalary(r); setPayForm({ deductions: String(r.deductions), bonus: String(r.bonus), method: 'BANK' }); setPayOpen(true); }}>Mark Paid</Button>
-              ) : <span className="text-xs text-green-600">✓ Paid</span> }
+                <Button size="sm" onClick={() => { setSelectedSalary(r); setPayForm({ deductions: String(r.deductions), bonus: String(r.bonus), method: 'BANK' }); setPayOpen(true); }}>{t('hr.payroll.markPaid', 'Mark Paid')}</Button>
+              ) : <span className="text-xs text-green-600">✓ {t('hr.payroll.paid', 'Paid')}</span> }
             ]}
             data={payroll} searchKey="employee"
           />
@@ -205,19 +209,19 @@ export default function HR() {
           <DialogHeader><DialogTitle>{editEmp ? 'Edit Employee' : 'Add Employee'}</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); empMutation.mutate({ ...empForm, salary: Number(empForm.salary), departmentId: empForm.departmentId ? Number(empForm.departmentId) : undefined }); }} className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Name *</Label><Input required value={empForm.name} onChange={e => setEmpForm({ ...empForm, name: e.target.value })} /></div>
-              <div className="space-y-2"><Label>Phone</Label><Input value={empForm.phone} onChange={e => setEmpForm({ ...empForm, phone: e.target.value })} /></div>
-              <div className="space-y-2"><Label>Designation</Label><Input value={empForm.designation} onChange={e => setEmpForm({ ...empForm, designation: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Name *</Label><AnimatedInput required value={empForm.name} onChange={e => setEmpForm({ ...empForm, name: e.target.value })} /></div>
+              <div className="space-y-2"><Label>{t('common.phone', 'Phone')}</Label><AnimatedInput value={empForm.phone} onChange={e => setEmpForm({ ...empForm, phone: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Designation</Label><AnimatedInput value={empForm.designation} onChange={e => setEmpForm({ ...empForm, designation: e.target.value })} /></div>
               <div className="space-y-2"><Label>Department</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={empForm.departmentId} onChange={e => setEmpForm({ ...empForm, departmentId: e.target.value })}>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={empForm.departmentId} onChange={e => setEmpForm({ ...empForm, departmentId: e.target.value })}>
                   <option value="">Select</option>
                   {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
+                </AnimatedSelect>
               </div>
-              <div className="space-y-2"><Label>Monthly Salary (₹)</Label><Input type="number" value={empForm.salary} onChange={e => setEmpForm({ ...empForm, salary: e.target.value })} /></div>
-              <div className="space-y-2"><Label>Email</Label><Input type="email" value={empForm.email} onChange={e => setEmpForm({ ...empForm, email: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Monthly Salary (₹)</Label><AnimatedInput type="number" value={empForm.salary} onChange={e => setEmpForm({ ...empForm, salary: e.target.value })} /></div>
+              <div className="space-y-2"><Label>{t('common.email', 'Email')}</Label><AnimatedInput type="email" value={empForm.email} onChange={e => setEmpForm({ ...empForm, email: e.target.value })} /></div>
             </div>
-            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setIsEmpOpen(false)}>Cancel</Button><Button type="submit">Save</Button></div>
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setIsEmpOpen(false)}>{t('common.cancel', 'Cancel')}</Button><Button type="submit">{t('common.save', 'Save')}</Button></div>
           </form>
         </DialogContent>
       </Dialog>
@@ -232,16 +236,16 @@ export default function HR() {
               <div><span className="text-slate-400">Net Pay</span><p className="font-bold text-primary">₹{((selectedSalary?.baseSalary || 0) - Number(payForm.deductions) + Number(payForm.bonus)).toLocaleString('en-IN')}</p></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Deductions (₹)</Label><Input type="number" min="0" value={payForm.deductions} onChange={e => setPayForm({ ...payForm, deductions: e.target.value })} /></div>
-              <div className="space-y-2"><Label>Bonus (₹)</Label><Input type="number" min="0" value={payForm.bonus} onChange={e => setPayForm({ ...payForm, bonus: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Deductions (₹)</Label><AnimatedInput type="number" min="0" value={payForm.deductions} onChange={e => setPayForm({ ...payForm, deductions: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Bonus (₹)</Label><AnimatedInput type="number" min="0" value={payForm.bonus} onChange={e => setPayForm({ ...payForm, bonus: e.target.value })} /></div>
             </div>
             <div className="space-y-2"><Label>Payment Method</Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={payForm.method} onChange={e => setPayForm({ ...payForm, method: e.target.value })}>
+              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={payForm.method} onChange={e => setPayForm({ ...payForm, method: e.target.value })}>
                 <option value="BANK">Bank Transfer</option><option value="CASH">Cash</option><option value="UPI">UPI</option>
-              </select>
+              </AnimatedSelect>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setPayOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setPayOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button onClick={() => markPaidMutation.mutate(selectedSalary?.id)} disabled={markPaidMutation.isPending}>Confirm Payment</Button>
             </div>
           </div>

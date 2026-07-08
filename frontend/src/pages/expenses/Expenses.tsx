@@ -1,3 +1,5 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { IndianRupee, TrendingDown, PlusCircle, Trash2 } from 'lucide-react';
+import {  IndianRupee, TrendingDown, PlusCircle, Trash2  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 const PAYMENT_METHODS = ['CASH', 'BANK', 'UPI', 'CHEQUE'];
 
 export default function Expenses() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
@@ -65,14 +69,14 @@ export default function Expenses() {
   const totalExpenses = expenses.reduce((s: number, e: any) => s + e.amount, 0);
 
   const columns = [
-    { key: 'date', label: 'Date', render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
-    { key: 'category', label: 'Category', render: (r: any) => <Badge variant="outline">{r.category?.name}</Badge> },
-    { key: 'description', label: 'Description' },
-    { key: 'amount', label: 'Amount', render: (r: any) => <span className="font-semibold text-red-600">₹{r.amount.toLocaleString('en-IN')}</span> },
-    { key: 'paidBy', label: 'Paid By', render: (r: any) => <Badge variant="secondary">{r.paidBy}</Badge> },
+    { key: 'date', label: t('customers.cols.date', 'Date'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+    { key: 'category', label: t('expenses.cols.category', 'CATEGORY'), render: (r: any) => <Badge variant="outline">{r.category?.name}</Badge> },
+    { key: 'description', label: t('expenses.cols.description', 'DESCRIPTION') },
+    { key: 'amount', label: t('expenses.cols.amount', 'AMOUNT'), render: (r: any) => <span className="font-semibold text-red-600">₹{r.amount.toLocaleString('en-IN')}</span> },
+    { key: 'paidBy', label: t('expenses.cols.paidBy', 'PAID BY'), render: (r: any) => <Badge variant="secondary">{r.paidBy}</Badge> },
     { key: 'actions', label: '', render: (r: any) => (
       <div className="flex gap-1">
-        <Button size="sm" variant="outline" onClick={() => openEdit(r)}>Edit</Button>
+        <Button size="sm" variant="outline" onClick={() => openEdit(r)}>{t('common.edit', 'Edit')}</Button>
         <Button size="sm" variant="ghost" onClick={() => { if (confirm('Delete this expense?')) deleteMutation.mutate(r.id); }}><Trash2 className="h-4 w-4 text-red-500" /></Button>
       </div>
     )}
@@ -80,20 +84,20 @@ export default function Expenses() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Expense Management</h1>
+      <h1 className="text-2xl font-bold text-slate-900">{t('expenses.title', 'Expense Management')}</h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="border-l-4 border-l-red-500">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between"><CardTitle className="text-sm text-slate-400">This Month</CardTitle><IndianRupee className="h-4 w-4 text-red-500" /></CardHeader>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between"><CardTitle className="text-sm text-slate-400">{t('expenses.kpi.thisMonth', 'This Month')}</CardTitle><IndianRupee className="h-4 w-4 text-red-500" /></CardHeader>
           <CardContent><div className="text-2xl font-bold text-red-600">₹{(summary?.totalThisMonth || 0).toLocaleString('en-IN')}</div></CardContent>
         </Card>
         <Card className="border-l-4 border-l-orange-500">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between"><CardTitle className="text-sm text-slate-400">Filtered Total</CardTitle><TrendingDown className="h-4 w-4 text-orange-500" /></CardHeader>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between"><CardTitle className="text-sm text-slate-400">{t('expenses.kpi.filteredTotal', 'Filtered Total')}</CardTitle><TrendingDown className="h-4 w-4 text-orange-500" /></CardHeader>
           <CardContent><div className="text-2xl font-bold text-orange-600">₹{totalExpenses.toLocaleString('en-IN')}</div></CardContent>
         </Card>
         <Card className="border-l-4 border-l-slate-400">
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-slate-400">Top Category (Month)</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-slate-400">{t('expenses.kpi.topCategory', 'Top Category (Month)')}</CardTitle></CardHeader>
           <CardContent><div className="text-lg font-bold">{summary?.byCategory?.[0]?.categoryName || '-'}</div><div className="text-sm text-slate-400">₹{summary?.byCategory?.[0]?.total?.toLocaleString('en-IN') || 0}</div></CardContent>
         </Card>
       </div>
@@ -101,7 +105,7 @@ export default function Expenses() {
       {/* Tabs */}
       <div className="flex gap-2 border-b pb-2">
         {(['expenses', 'categories'] as const).map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-t-lg font-medium text-sm capitalize ${activeTab === tab ? 'bg-primary text-slate-900' : 'bg-white text-slate-400 hover:bg-slate-200'}`}>{tab}</button>
+          <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-t-lg font-medium text-sm capitalize ${activeTab === tab ? 'bg-primary text-slate-900' : 'bg-white text-slate-400 hover:bg-slate-200'}`}>{t(`expenses.tabs.${tab}`, tab)}</button>
         ))}
       </div>
 
@@ -109,9 +113,9 @@ export default function Expenses() {
         <div className="space-y-4">
           {/* Date Filters */}
           <div className="flex flex-wrap gap-3 items-end">
-            <div><Label className="text-xs">From</Label><Input type="date" className="w-36" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></div>
-            <div><Label className="text-xs">To</Label><Input type="date" className="w-36" value={dateTo} onChange={e => setDateTo(e.target.value)} /></div>
-            {(dateFrom || dateTo) && <Button variant="outline" size="sm" onClick={() => { setDateFrom(''); setDateTo(''); }}>Clear Filter</Button>}
+            <div><Label className="text-xs">{t('expenses.filter.from', 'From')}</Label><AnimatedInput type="date" className="w-36" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></div>
+            <div><Label className="text-xs">{t('expenses.filter.to', 'To')}</Label><AnimatedInput type="date" className="w-36" value={dateTo} onChange={e => setDateTo(e.target.value)} /></div>
+            {(dateFrom || dateTo) && <Button variant="outline" size="sm" onClick={() => { setDateFrom(''); setDateTo(''); }}>{t('expenses.filter.clear', 'Clear Filter')}</Button>}
           </div>
           <DataTable columns={columns} data={expenses} searchKey="description" onAdd={openAdd} />
         </div>
@@ -119,18 +123,18 @@ export default function Expenses() {
 
       {activeTab === 'categories' && (
         <Card>
-          <CardHeader><CardTitle>Expense Categories</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('expenses.categoriesTitle', 'Expense Categories')}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="flex gap-2">
-              <Input placeholder="New category name..." value={newCategory} onChange={e => setNewCategory(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && newCategory.trim()) catMutation.mutate(newCategory.trim()); }} />
-              <Button onClick={() => { if (newCategory.trim()) catMutation.mutate(newCategory.trim()); }} disabled={catMutation.isPending}><PlusCircle className="h-4 w-4 mr-1" />Add</Button>
+              <AnimatedInput placeholder={t('expenses.newCategory', 'New category name...')} value={newCategory} onChange={e => setNewCategory(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && newCategory.trim()) catMutation.mutate(newCategory.trim()); }} />
+              <Button onClick={() => { if (newCategory.trim()) catMutation.mutate(newCategory.trim()); }} disabled={catMutation.isPending}><PlusCircle className="h-4 w-4 mr-1" />{t('common.add', 'Add')}</Button>
             </div>
             <div className="space-y-2">
               {categories.map((cat: any) => (
                 <div key={cat.id} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-lg">
                   <div>
                     <span className="font-medium">{cat.name}</span>
-                    <span className="text-xs text-slate-500 ml-2">({cat._count?.expenses || 0} expenses)</span>
+                    <span className="text-xs text-slate-500 ml-2">({cat._count?.expenses || 0} {t('expenses.expensesCount', 'expenses')})</span>
                   </div>
                   <Button size="sm" variant="ghost" onClick={() => deleteCatMutation.mutate(cat.id)} className="text-red-500"><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -143,44 +147,44 @@ export default function Expenses() {
       {/* Add/Edit Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{editItem ? 'Edit Expense' : 'Add Expense'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editItem ? t('expenses.form.editTitle', 'Edit Expense') : t('expenses.form.addTitle', 'Add Expense')}</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate({ ...form, categoryId: Number(form.categoryId), amount: Number(form.amount) }); }} className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Category *</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
-                  <option value="">Select</option>
+                <Label>{t('expenses.form.category', 'Category *')}</Label>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
+                  <option value="">{t('common.select', 'Select')}</option>
                   {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                </AnimatedSelect>
               </div>
               <div className="space-y-2">
-                <Label>Date *</Label>
-                <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
+                <Label>{t('expenses.form.date', 'Date *')}</Label>
+                <AnimatedInput type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Description *</Label>
-              <Input required value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="e.g. Monthly rent payment" />
+              <Label>{t('expenses.form.desc', 'Description *')}</Label>
+              <AnimatedInput required value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder={t('expenses.form.descPh', 'e.g. Monthly rent payment')} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Amount (₹) *</Label>
-                <Input type="number" required min="0.01" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
+                <Label>{t('expenses.form.amount', 'Amount (₹) *')}</Label>
+                <AnimatedInput type="number" required min="0.01" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Payment Method</Label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.paidBy} onChange={e => setForm({ ...form, paidBy: e.target.value })}>
+                <Label>{t('expenses.form.paymentMethod', 'Payment Method')}</Label>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.paidBy} onChange={e => setForm({ ...form, paidBy: e.target.value })}>
                   {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
+                </AnimatedSelect>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Reference / Voucher No.</Label>
-              <Input value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} placeholder="Optional" />
+              <Label>{t('expenses.form.reference', 'Reference / Voucher No.')}</Label>
+              <AnimatedInput value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} placeholder={t('common.optionalPlaceholder', 'Optional')} />
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={saveMutation.isPending}>{saveMutation.isPending ? 'Saving...' : 'Save'}</Button>
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
+              <Button type="submit" disabled={saveMutation.isPending}>{saveMutation.isPending ? t('common.saving', 'Saving...') : t('common.save', 'Save')}</Button>
             </div>
           </form>
         </DialogContent>

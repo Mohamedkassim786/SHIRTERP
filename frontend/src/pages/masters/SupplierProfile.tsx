@@ -1,3 +1,5 @@
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -5,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
-import { ArrowLeft, Truck, Phone, MapPin, Building, IndianRupee } from 'lucide-react';
+import {  ArrowLeft, Truck, Phone, MapPin, Building, IndianRupee  } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,6 +18,7 @@ import { Label } from '@/components/ui/label';
 type TabType = 'purchase-orders' | 'payments';
 
 export default function SupplierProfile() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabType>('purchase-orders');
@@ -59,7 +63,7 @@ export default function SupplierProfile() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Vendor Profile</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('suppliers.profile.title', 'Vendor Profile')}</h1>
         <Badge variant="outline" className="ml-auto bg-white">
           {profile.category}
         </Badge>
@@ -79,21 +83,21 @@ export default function SupplierProfile() {
               <div className="flex items-start gap-3">
                 <Phone className="h-4 w-4 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Phone Number</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.phone', 'PHONE NUMBER')}</p>
                   <p className="text-sm font-medium text-slate-900 mt-0.5">{profile.phone || 'Not provided'}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Building className="h-4 w-4 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">GST Number</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.gst', 'GST NUMBER')}</p>
                   <p className="text-sm font-medium text-slate-900 mt-0.5">{profile.gstNumber || 'Not provided'}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 sm:col-span-2">
                 <MapPin className="h-4 w-4 text-slate-500 mt-0.5" />
                 <div>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Address</p>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('common.address', 'Address')}</p>
                   <p className="text-sm text-slate-900 mt-0.5">{profile.address || 'Not provided'}</p>
                 </div>
               </div>
@@ -106,19 +110,19 @@ export default function SupplierProfile() {
           <CardHeader className="pb-3 border-b border-orange-100/50">
             <CardTitle className="text-lg flex items-center gap-2">
               <IndianRupee className="h-5 w-5 text-orange-600" />
-              Outstanding
+              {t('suppliers.profile.outstanding', 'Outstanding')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div>
-              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">We Owe Them</p>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('suppliers.profile.weOwe', 'WE OWE THEM')}</p>
               <p className={`text-3xl font-bold mt-1 ${profile.outstandingBalance > 0 ? 'text-orange-600' : 'text-slate-600'}`}>
                 ₹{profile.outstandingBalance?.toLocaleString('en-IN') || 0}
               </p>
             </div>
             {profile.outstandingBalance > 0 && (
               <Button className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white" onClick={() => setIsPaymentDialogOpen(true)}>
-                Record Payment
+                {t('suppliers.profile.recordPayment', 'Record Payment')}
               </Button>
             )}
           </CardContent>
@@ -138,7 +142,7 @@ export default function SupplierProfile() {
                   : 'border-transparent text-slate-400 hover:text-slate-700'
               }`}
             >
-              {tab === 'purchase-orders' ? 'Purchase History' : 'Payment History'}
+              {tab === 'purchase-orders' ? t('suppliers.profile.tabs.purchase', 'Purchase History') : t('suppliers.profile.tabs.payment', 'Payment History')}
             </button>
           ))}
         </div>
@@ -146,10 +150,10 @@ export default function SupplierProfile() {
         {activeTab === 'purchase-orders' && (
           <DataTable 
             columns={[
-              { key: 'poNumber', label: 'PO No' },
-              { key: 'date', label: 'Date', render: (r: any) => new Date(r.createdAt).toLocaleDateString('en-IN') },
-              { key: 'totalAmount', label: 'Amount', render: (r: any) => `₹${r.totalAmount?.toLocaleString('en-IN')}` },
-              { key: 'status', label: 'Status', render: (r: any) => (
+              { key: 'poNumber', label: t('common.poNo', 'PO NO') },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.createdAt).toLocaleDateString('en-IN') },
+              { key: 'totalAmount', label: t('common.amount', 'AMOUNT'), render: (r: any) => `₹${r.totalAmount?.toLocaleString('en-IN')}` },
+              { key: 'status', label: t('common.status', 'STATUS'), render: (r: any) => (
                 <Badge variant={r.status === 'COMPLETED' ? 'default' : r.status === 'CANCELLED' ? 'destructive' : 'secondary'}>{r.status}</Badge>
               )}
             ]} 
@@ -161,10 +165,10 @@ export default function SupplierProfile() {
         {activeTab === 'payments' && (
           <DataTable 
             columns={[
-              { key: 'date', label: 'Date', render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
-              { key: 'method', label: 'Method' },
-              { key: 'reference', label: 'Reference No' },
-              { key: 'amount', label: 'Amount', render: (r: any) => <span className="font-bold text-orange-600">₹{r.amount?.toLocaleString('en-IN')}</span> },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+              { key: 'method', label: t('common.method', 'METHOD') },
+              { key: 'reference', label: t('common.refNo', 'REFERENCE NO') },
+              { key: 'amount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="font-bold text-orange-600">₹{r.amount?.toLocaleString('en-IN')}</span> },
             ]} 
             data={profile.payments || []} 
             searchKey="reference" 
@@ -180,23 +184,23 @@ export default function SupplierProfile() {
           <form onSubmit={handlePaymentSubmit} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label>Amount (₹) *</Label>
-              <Input type="number" required value={paymentForm.amount} onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })} />
+              <AnimatedInput type="number" required value={paymentForm.amount} onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })} />
             </div>
             <div className="space-y-2">
               <Label>Payment Method</Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={paymentForm.method} onChange={e => setPaymentForm({ ...paymentForm, method: e.target.value })}>
+              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={paymentForm.method} onChange={e => setPaymentForm({ ...paymentForm, method: e.target.value })}>
                 <option value="Bank Transfer">Bank Transfer</option>
                 <option value="Cash">Cash</option>
                 <option value="Cheque">Cheque</option>
                 <option value="UPI">UPI</option>
-              </select>
+              </AnimatedSelect>
             </div>
             <div className="space-y-2">
               <Label>Reference Number</Label>
-              <Input value={paymentForm.reference} onChange={e => setPaymentForm({ ...paymentForm, reference: e.target.value })} placeholder="Transaction ID, Cheque No, etc." />
+              <AnimatedInput value={paymentForm.reference} onChange={e => setPaymentForm({ ...paymentForm, reference: e.target.value })} placeholder="Transaction ID, Cheque No, etc." />
             </div>
             <div className="pt-4 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button type="submit" disabled={paymentMutation.isPending}>{paymentMutation.isPending ? 'Processing...' : 'Confirm Payment'}</Button>
             </div>
           </form>

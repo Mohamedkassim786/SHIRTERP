@@ -22,6 +22,10 @@ import Settings from './pages/settings/Settings';
 import Expenses from './pages/expenses/Expenses';
 import HR from './pages/hr/HR';
 import FinanceDashboard from './pages/finance/FinanceDashboard';
+import PaymentReceipt from './pages/sales/PaymentReceipt';
+import DiscountInvoicePrint from './pages/sales/SettlementOfferPrint';
+import EWayBills from './pages/sales/EWayBills';
+import EWayBillPrint from './pages/sales/EWayBillPrint';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30 * 1000, retry: 1 } }
@@ -65,11 +69,19 @@ function App() {
             <Route path="reports" element={<Reports />} />
             {/* Module 12: Settings */}
             <Route path="settings" element={<Settings />} />
+            {/* E-Way Bills */}
+            <Route path="eway-bills" element={<EWayBills />} />
             {/* HR & Payroll */}
             <Route path="hr" element={<HR />} />
           </Route>
           {/* Printable Invoice (no sidebar) */}
           <Route path="/sales/invoice/:id/print" element={<ProtectedRoute><InvoicePrint /></ProtectedRoute>} />
+          {/* Printable Payment Receipt (no sidebar) */}
+          <Route path="/sales/receipt/:paymentId/print" element={<ProtectedRoute><PaymentReceipt /></ProtectedRoute>} />
+          {/* Printable Settlement Offer (no sidebar) */}
+          <Route path="/sales/settlement-offer/:id/print" element={<ProtectedRoute><DiscountInvoicePrint /></ProtectedRoute>} />
+          {/* Printable E-Way Bill (no sidebar) */}
+          <Route path="/eway-bills/:id/print" element={<ProtectedRoute><EWayBillPrint /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
