@@ -135,7 +135,7 @@ async function main() {
   });
 
   // ─── SHIRT MODELS + BOM ────────────────────────────────────────────────────
-  const model1 = await prisma.shirtModel.upsert({ where: { name: 'Oxford Navy Blue Formal' }, update: {},
+  const model1 = await prisma.product.upsert({ where: { name: 'Oxford Navy Blue Formal' }, update: {},
     create: {
       name: 'Oxford Navy Blue Formal', categoryId: catFormal.id, hsnCode: '6205',
       boms: { create: [
@@ -149,7 +149,7 @@ async function main() {
     }
   });
 
-  const model2 = await prisma.shirtModel.upsert({ where: { name: 'Classic White Formal' }, update: {},
+  const model2 = await prisma.product.upsert({ where: { name: 'Classic White Formal' }, update: {},
     create: {
       name: 'Classic White Formal', categoryId: catFormal.id, hsnCode: '6205',
       boms: { create: [
@@ -163,7 +163,7 @@ async function main() {
     }
   });
 
-  const model3 = await prisma.shirtModel.upsert({ where: { name: 'Casual Sky Blue T-Shirt' }, update: {},
+  const model3 = await prisma.product.upsert({ where: { name: 'Casual Sky Blue T-Shirt' }, update: {},
     create: {
       name: 'Casual Sky Blue T-Shirt', categoryId: catCasual.id, hsnCode: '6109',
       boms: { create: [
@@ -175,7 +175,7 @@ async function main() {
     }
   });
 
-  const model4 = await prisma.shirtModel.upsert({ where: { name: 'Polyester Sports Tee' }, update: {},
+  const model4 = await prisma.product.upsert({ where: { name: 'Polyester Sports Tee' }, update: {},
     create: {
       name: 'Polyester Sports Tee', categoryId: catSports.id, hsnCode: '6109',
       boms: { create: [

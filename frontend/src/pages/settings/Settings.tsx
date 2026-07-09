@@ -4,84 +4,30 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DataTable } from '@/components/shared/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {  Save  } from 'lucide-react';
+import { Save, Building2, Users, ClipboardList, Database, Check, Settings as SettingsIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
 type SettingsTab = 'company' | 'users' | 'logs' | 'backups';
 
-const masterTabs: { key: string; label: string; fallback: string }[] = [
-  { key: 'company', label: 'settings.tabs.company', fallback: '🏢 Company Profile' },
-  { key: 'users',   label: 'settings.tabs.users', fallback: '👤 User Management' },
-  { key: 'logs',    label: 'settings.tabs.logs', fallback: '📋 Activity Logs' },
-  { key: 'backups', label: 'settings.tabs.backups', fallback: '💾 Database Backup' },
+interface TabItem {
+  key: SettingsTab;
+  label: string;
+  fallback: string;
+  icon: any;
+}
+
+const masterTabs: TabItem[] = [
+  { key: 'company', label: 'settings.tabs.company', fallback: 'Company Profile', icon: Building2 },
+  { key: 'users',   label: 'settings.tabs.users', fallback: 'User Management', icon: Users },
+  { key: 'logs',    label: 'settings.tabs.logs', fallback: 'Activity Logs', icon: ClipboardList },
+  { key: 'backups', label: 'settings.tabs.backups', fallback: 'Database Backup', icon: Database },
 ];
 
-const masterConfig: Record<string, any> = {
-  sizes: { endpoint: '/masters/sizes', fields: [{ key: 'name', label: 'Size Name' }] },
-  colors: { endpoint: '/masters/colors', fields: [{ key: 'name', label: 'Color Name' }, { key: 'hexCode', label: 'Hex Code', type: 'color' }] },
-  units: { endpoint: '/masters/units', fields: [{ key: 'name', label: 'Unit Name' }, { key: 'shortName', label: 'Short Name' }] },
-  categories: { endpoint: '/masters/categories', fields: [{ key: 'name', label: 'Category Name' }] },
-  departments: { endpoint: '/masters/departments', fields: [{ key: 'name', label: 'Department Name' }] },
-};
-
-function MasterSection({ tabKey }: { tabKey: string }) {
-  const { t } = useTranslation();
-  const config = masterConfig[tabKey];
-  const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<Record<string, string>>({});
-
-  const { data: items = [] } = useQuery({ queryKey: [tabKey], queryFn: async () => (await api.get(config.endpoint)).data, retry: 1 });
-  const createMutation = useMutation({
-    mutationFn: (data: any) => api.post(config.endpoint, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: [tabKey] }); setIsOpen(false); setFormData({}); }
-  });
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`${config.endpoint}/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [tabKey] }),
-    onError: () => alert('Cannot delete — this item is used by existing records')
-  });
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="capitalize">{tabKey}</CardTitle>
-        <Button size="sm" onClick={() => { setFormData({}); setIsOpen(true); }}>+ Add</Button>
-      </CardHeader>
-      <CardContent>
-        <DataTable columns={[
-          ...config.fields.map((f: any) => f.type === 'color' ? { key: f.key, label: 'Color', render: (r: any) => <div className="flex items-center gap-2"><div className="w-5 h-5 rounded-full border" style={{ backgroundColor: r.hexCode }} /><span>{r.hexCode}</span></div> } : { key: f.key, label: f.label }),
-          { key: 'actions', label: '', render: (r: any) => <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete "${r.name}"?`)) deleteMutation.mutate(r.id); }} className="text-red-500">{t('common.delete', 'Delete')}</Button> }
-        ]} data={items} searchKey="name" />
-      </CardContent>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Add {tabKey.slice(0, -1)}</DialogTitle></DialogHeader>
-          <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate(formData); }} className="space-y-4 pt-4">
-            {config.fields.map((f: any) => (
-              <div key={f.key} className="space-y-2">
-                <Label>{f.label}</Label>
-                {f.type === 'color' ? (
-                  <div className="flex gap-3 items-center">
-                    <input type="color" value={formData[f.key] || '#000000'} onChange={e => setFormData({ ...formData, [f.key]: e.target.value })} className="h-10 w-16 rounded border cursor-pointer" />
-                    <AnimatedInput value={formData[f.key] || ''} onChange={e => setFormData({ ...formData, [f.key]: e.target.value })} placeholder="#000000" />
-                  </div>
-                ) : <AnimatedInput required value={formData[f.key] || ''} onChange={e => setFormData({ ...formData, [f.key]: e.target.value })} />}
-              </div>
-            ))}
-            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel', 'Cancel')}</Button><Button type="submit">{t('common.save', 'Save')}</Button></div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-}
 
 function CompanySettings() {
   const { t } = useTranslation();
@@ -112,7 +58,11 @@ function CompanySettings() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>{t('settings.companyProfile', 'Company Profile')}</CardTitle>
-        {saved && <span className="text-green-600 text-sm font-medium">✓ {t('common.saved', 'Saved!')}</span>}
+        {saved && (
+          <span className="text-green-600 text-sm font-medium flex items-center gap-1 animate-fade-in">
+            <Check className="h-4 w-4" /> {t('common.saved', 'Saved!')}
+          </span>
+        )}
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -175,7 +125,7 @@ function UsersSection() {
               <div className="space-y-2"><Label>{t('settings.users.cols.email', 'Email')} *</Label><AnimatedInput type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
               <div className="space-y-2"><Label>{t('settings.users.password', 'Password')} *</Label><AnimatedInput type="password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} /></div>
               <div className="space-y-2"><Label>{t('settings.users.cols.role', 'Role')} *</Label>
-                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.roleId} onChange={e => setForm({ ...form, roleId: e.target.value })} required>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={form.roleId} onChange={e => setForm({ ...form, roleId: e.target.value })} required>
                   <option value="">{t('settings.users.selectRole', 'Select Role')}</option>
                   {roles.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </AnimatedSelect>
@@ -264,14 +214,31 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-slate-900">{t('settings.title', 'Settings')}</h1>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-slate-600 flex items-center justify-center shadow-lg shadow-slate-200/50">
+          <SettingsIcon className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('settings.title', 'Settings')}</h1>
+          <p className="text-sm text-slate-500">Configure company profiles, user accounts, and system backups</p>
+        </div>
+      </div>
       <div className="flex flex-wrap gap-2 border-b pb-2">
-        {masterTabs.map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key as SettingsTab)}
-            className={`px-4 py-2 rounded-t-lg font-medium text-sm transition-colors ${activeTab === tab.key ? 'bg-indigo-600 text-slate-900' : 'bg-white text-slate-400 hover:bg-slate-200'}`}>
-            {t(tab.label, tab.fallback)}
-          </button>
-        ))}
+        {masterTabs.map(tab => {
+          const Icon = tab.icon;
+          return (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+              className={`px-4 py-2.5 rounded-t-xl font-semibold text-sm transition-all duration-150 flex items-center gap-2 border border-transparent ${
+                activeTab === tab.key 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-200/50' 
+                  : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {t(tab.label, tab.fallback)}
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === 'company' && <CompanySettings />}

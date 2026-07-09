@@ -18,7 +18,30 @@
     "Reports": "Reports",
     "Settings": "Settings",
     "Logout": "Logout",
-    "E_WayBills": "E-Way Bills"
+    "E_WayBills": "E-Way Bills",
+    "Products": "Products"
+  },
+  "masters": {
+    "products": {
+      "title": "Products & Master Data",
+      "tabs": {
+        "products": "Products",
+        "categories": "Categories",
+        "colors": "Colours",
+        "sizes": "Sizes"
+      },
+      "addNew": "Add New Product",
+      "addCategory": "Add New Category",
+      "addColor": "Add New Colour",
+      "addSize": "Add New Size",
+      "productName": "Product Name",
+      "category": "Category",
+      "hsnCode": "HSN Code",
+      "bomItems": "BOM Items",
+      "desc": "Description",
+      "colorName": "Colour Name",
+      "sizeName": "Size Name"
+    }
   },
   "dashboard": {
     "title": "Dashboard Overview",
@@ -234,7 +257,7 @@
       "deliveryDate": "Delivery Date",
       "orderItems": "Order Items *",
       "addRow": "Add Row",
-      "shirtModel": "Shirt Model",
+      "product": "Product",
       "color": "Color",
       "size": "Size",
       "qty": "Qty",
@@ -528,13 +551,13 @@
     "title": "Reports",
     "print": "Print / Export",
     "tabs": {
-      "pl": "📊 P&L Report",
-      "sales": "🛒 Sales Report",
-      "purchase": "📦 Purchase Report",
-      "stock": "📋 Stock Report",
-      "gst": "🧾 GST Report",
-      "outstanding": "💰 Outstanding",
-      "customer": "👥 Customer Report"
+      "pl": "P&L Report",
+      "sales": "Sales Report",
+      "purchase": "Purchase Report",
+      "stock": "Stock Report",
+      "gst": "GST Report",
+      "outstanding": "Outstanding",
+      "customer": "Customer Report"
     },
     "fromDate": "From Date",
     "toDate": "To Date",
@@ -633,10 +656,10 @@
   "settings": {
     "title": "Settings",
     "tabs": {
-      "company": "🏢 Company Profile",
-      "users": "👤 User Management",
-      "logs": "📋 Activity Logs",
-      "backups": "💾 Database Backup"
+      "company": "Company Profile",
+      "users": "User Management",
+      "logs": "Activity Logs",
+      "backups": "Database Backup"
     },
     "companyProfile": "Company Profile",
     "companyName": "Company Name",

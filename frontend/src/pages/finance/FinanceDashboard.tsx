@@ -1,17 +1,18 @@
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
+import { AnimatedDatePicker } from '@/components/ui/AnimatedDatePicker';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {  Landmark, IndianRupee, FileText, Activity  } from 'lucide-react';
+import { Landmark, IndianRupee, FileText, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
+import { format } from 'date-fns';
 
 type Tab = 'overview' | 'daybook' | 'accounts';
 
@@ -57,13 +58,21 @@ export default function FinanceDashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{t('finance.title', 'Accounts & Finance')}</h1>
-        <div className="flex gap-2">
-          <Button onClick={() => setIsTxnOpen(true)} className="bg-slate-900 text-white hover:bg-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg shadow-teal-200/50">
+            <Landmark className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">{t('finance.title', 'Accounts & Finance')}</h1>
+            <p className="text-sm text-slate-500">Manage charts of accounts, double-entry daybook, and balance sheets</p>
+          </div>
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button onClick={() => setIsTxnOpen(true)} className="flex-1 sm:flex-none bg-slate-900 text-white hover:bg-slate-800">
             <Activity className="h-4 w-4 mr-1" /> {t('finance.newTxn', 'New Transaction')}
           </Button>
-          <Button variant="outline" onClick={() => setIsAccOpen(true)}>
+          <Button variant="outline" onClick={() => setIsAccOpen(true)} className="flex-1 sm:flex-none">
             <Landmark className="h-4 w-4 mr-1" /> {t('finance.newAcc', 'New Account')}
           </Button>
         </div>
@@ -92,27 +101,27 @@ export default function FinanceDashboard() {
             <Card className="glass border-l-4 border-l-green-500">
               <CardContent className="p-5">
                 <p className="text-sm font-medium text-slate-500">{t('finance.kpi.revenue', 'Total Revenue')}</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">₹{dashboard?.totalRevenue?.toLocaleString('en-IN') || 0}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">₹{(dashboard?.totalRevenue ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </CardContent>
             </Card>
             <Card className="glass border-l-4 border-l-red-500">
               <CardContent className="p-5">
                 <p className="text-sm font-medium text-slate-500">{t('finance.kpi.expenses', 'Total Expenses')}</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">₹{dashboard?.totalExpense?.toLocaleString('en-IN') || 0}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">₹{(dashboard?.totalExpense ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </CardContent>
             </Card>
             <Card className="glass border-l-4 border-l-blue-500">
               <CardContent className="p-5">
                 <p className="text-sm font-medium text-slate-500">{t('finance.kpi.profit', 'Net Profit')}</p>
                 <p className={`text-2xl font-bold mt-1 ${dashboard?.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ₹{dashboard?.netProfit?.toLocaleString('en-IN') || 0}
+                  ₹{(dashboard?.netProfit ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </CardContent>
             </Card>
             <Card className="glass border-l-4 border-l-indigo-500">
               <CardContent className="p-5">
                 <p className="text-sm font-medium text-slate-500">{t('finance.kpi.assets', 'Total Assets (Cash/Bank)')}</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">₹{dashboard?.totalAssets?.toLocaleString('en-IN') || 0}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">₹{(dashboard?.totalAssets ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </CardContent>
             </Card>
           </div>
@@ -126,12 +135,12 @@ export default function FinanceDashboard() {
                   {accounts.filter((a: any) => a.type === 'ASSET').map((a: any) => (
                     <div key={a.id} className="flex justify-between py-2 border-b border-slate-100 last:border-0">
                       <span className="text-slate-600">{a.name}</span>
-                      <span className="font-medium">₹{a.balance.toLocaleString('en-IN')}</span>
+                      <span className="font-medium">₹{a.balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   ))}
                   <div className="flex justify-between py-3 mt-2 border-t-2 font-bold text-slate-900">
                     <span>{t('finance.totalAssets', 'Total Assets')}</span>
-                    <span>₹{dashboard?.totalAssets?.toLocaleString('en-IN') || 0}</span>
+                    <span>₹{(dashboard?.totalAssets ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                 </div>
                 <div>
@@ -139,12 +148,12 @@ export default function FinanceDashboard() {
                   {accounts.filter((a: any) => a.type === 'LIABILITY' || a.type === 'EQUITY').map((a: any) => (
                     <div key={a.id} className="flex justify-between py-2 border-b border-slate-100 last:border-0">
                       <span className="text-slate-600">{a.name}</span>
-                      <span className="font-medium">₹{a.balance.toLocaleString('en-IN')}</span>
+                      <span className="font-medium">₹{a.balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   ))}
                   <div className="flex justify-between py-3 mt-2 border-t-2 font-bold text-slate-900">
                     <span>{t('finance.totalLiabilities', 'Total Liabilities')}</span>
-                    <span>₹{dashboard?.totalLiabilities?.toLocaleString('en-IN') || 0}</span>
+                    <span>₹{(dashboard?.totalLiabilities ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
@@ -161,7 +170,7 @@ export default function FinanceDashboard() {
             { key: 'type', label: t('finance.cols.type', 'Type'), render: (r: any) => <Badge variant="outline">{r.type}</Badge> },
             { key: 'balance', label: t('finance.cols.balance', 'Current Balance'), render: (r: any) => (
               <span className={`font-bold ${(r.type === 'ASSET' || r.type === 'REVENUE') ? 'text-green-600' : (r.type === 'EXPENSE' || r.type === 'LIABILITY') ? 'text-red-600' : 'text-slate-700'}`}>
-                ₹{r.balance.toLocaleString('en-IN')}
+                ₹{r.balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             )},
             { key: 'isSystem', label: t('finance.cols.system', 'System'), render: (r: any) => r.isSystem ? <Badge>{t('finance.system', 'System')}</Badge> : <span className="text-xs text-slate-400">{t('finance.custom', 'Custom')}</span> }
@@ -176,16 +185,16 @@ export default function FinanceDashboard() {
       {tab === 'daybook' && (
         <DataTable
           columns={[
-            { key: 'date', label: t('customers.cols.date', 'Date'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+            { key: 'date', label: t('customers.cols.date', 'Date'), render: (r: any) => <span className="whitespace-nowrap">{format(new Date(r.date), 'dd MMM yyyy')}</span> },
             { key: 'description', label: t('finance.cols.desc', 'Description'), render: (r: any) => (
               <div>
                 <p className="font-medium text-slate-900">{r.description}</p>
                 {r.reference && <p className="text-xs text-slate-500">Ref: {r.reference}</p>}
               </div>
             )},
-            { key: 'debit', label: t('finance.cols.debit', 'Debit Account (In)'), render: (r: any) => <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">{r.debitAccount?.name}</Badge> },
-            { key: 'credit', label: t('finance.cols.credit', 'Credit Account (Out)'), render: (r: any) => <Badge variant="outline" className="text-red-600 bg-red-50 border-red-200">{r.creditAccount?.name}</Badge> },
-            { key: 'amount', label: t('finance.cols.amount', 'Amount'), render: (r: any) => <span className="font-bold text-slate-900">₹{r.amount.toLocaleString('en-IN')}</span> }
+            { key: 'debit', label: t('finance.cols.debit', 'Debit Account (In)'), render: (r: any) => <Badge variant="outline" className="text-green-600 bg-green-50/60 border-green-200">{r.debitAccount?.name}</Badge> },
+            { key: 'credit', label: t('finance.cols.credit', 'Credit Account (Out)'), render: (r: any) => <Badge variant="outline" className="text-red-600 bg-red-50/60 border-red-200">{r.creditAccount?.name}</Badge> },
+            { key: 'amount', label: t('finance.cols.amount', 'Amount'), render: (r: any) => <span className="font-bold text-slate-900 whitespace-nowrap">₹{r.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> }
           ]}
           data={transactions}
           searchKey="description"
@@ -204,7 +213,7 @@ export default function FinanceDashboard() {
             </div>
             <div className="space-y-2">
               <Label>{t('finance.accForm.type', 'Account Type *')}</Label>
-              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={accForm.type} onChange={e => setAccForm({ ...accForm, type: e.target.value })}>
+              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={accForm.type} onChange={e => setAccForm({ ...accForm, type: e.target.value })}>
                 <option value="ASSET">{t('finance.accForm.asset', 'Asset (Bank, Cash, Inventory)')}</option>
                 <option value="LIABILITY">{t('finance.accForm.liability', 'Liability (Loans, Payables)')}</option>
                 <option value="EQUITY">{t('finance.accForm.equity', 'Equity (Capital)')}</option>
@@ -228,7 +237,7 @@ export default function FinanceDashboard() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('finance.txnForm.date', 'Date *')}</Label>
-                <AnimatedInput type="date" required value={txnForm.date} onChange={e => setTxnForm({ ...txnForm, date: e.target.value })} />
+                <AnimatedDatePicker value={txnForm.date} onChange={val => setTxnForm({ ...txnForm, date: val })} />
               </div>
               <div className="space-y-2">
                 <Label>{t('finance.txnForm.amount', 'Amount (₹) *')}</Label>

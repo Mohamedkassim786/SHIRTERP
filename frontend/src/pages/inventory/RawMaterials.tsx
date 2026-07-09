@@ -6,10 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import {  Package, AlertTriangle, ArrowDownUp, Eye  } from 'lucide-react';
+import { Package, AlertTriangle, ArrowDownUp, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -17,10 +16,10 @@ export default function RawMaterials() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  
+
   const [isMaterialDialogOpen, setIsMaterialDialogOpen] = useState(false);
   const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
-  
+
   const [materialForm, setMaterialForm] = useState({ name: '', unitId: '', minStockLevel: '', location: '' });
   const [stockForm, setStockForm] = useState({ materialId: '', type: 'IN', quantity: '', reference: '', batchNumber: '', notes: '' });
 
@@ -65,24 +64,36 @@ export default function RawMaterials() {
   const columns = [
     { key: 'name', label: t('inventory.cols.name', 'MATERIAL NAME'), render: (row: any) => <span className="font-medium text-slate-900">{row.name}</span> },
     { key: 'location', label: t('inventory.cols.location', 'LOCATION'), render: (row: any) => row.location || '-' },
-    { key: 'currentStock', label: t('inventory.cols.currentStock', 'CURRENT STOCK'), render: (row: any) => (
-      <span className={`px-2 py-1 rounded-md text-sm font-bold ${row.currentStock <= row.minStockLevel ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-        {row.currentStock} {row.unit?.shortName}
-      </span>
-    )},
+    {
+      key: 'currentStock', label: t('inventory.cols.currentStock', 'CURRENT STOCK'), render: (row: any) => (
+        <span className={`px-2 py-1 rounded-md text-sm font-bold ${row.currentStock <= row.minStockLevel ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+          {row.currentStock} {row.unit?.shortName}
+        </span>
+      )
+    },
     { key: 'minStockLevel', label: t('inventory.cols.minAlert', 'MIN ALERT LEVEL'), render: (row: any) => `${row.minStockLevel} ${row.unit?.shortName}` },
-    { key: 'actions', label: t('customers.cols.actions', 'Actions'), render: (row: any) => (
-      <Button size="sm" variant="outline" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" onClick={() => navigate(`/inventory/${row.id}`)}>
-        <Eye className="h-4 w-4 mr-1" /> {t('inventory.cols.ledger', 'Ledger')}
-      </Button>
-    )}
+    {
+      key: 'actions', label: t('customers.cols.actions', 'Actions'), render: (row: any) => (
+        <Button size="sm" variant="outline" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" onClick={() => navigate(`/inventory/${row.id}`)}>
+          <Eye className="h-4 w-4 mr-1" /> {t('inventory.cols.ledger', 'Ledger')}
+        </Button>
+      )
+    }
   ];
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">{t('inventory.title', 'Inventory Management')}</h1>
-        <Button onClick={() => setIsStockDialogOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center shadow-lg shadow-amber-200/50">
+            <Package className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">{t('inventory.title', 'Inventory Management')}</h1>
+            <p className="text-sm text-slate-500">Track raw material stocks, warehouse locations, and adjustments</p>
+          </div>
+        </div>
+        <Button onClick={() => setIsStockDialogOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto">
           <ArrowDownUp className="h-4 w-4 mr-2" /> {t('inventory.adjustStock', 'Adjust Stock')}
         </Button>
       </div>
@@ -115,13 +126,13 @@ export default function RawMaterials() {
         <h2 className="text-lg font-bold text-slate-700">{t('inventory.directory', 'Materials Directory')}</h2>
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={materials} 
+      <DataTable
+        columns={columns}
+        data={materials}
         isLoading={isLoading}
         error={error}
-        searchKey="name" 
-        onAdd={() => setIsMaterialDialogOpen(true)} 
+        searchKey="name"
+        onAdd={() => setIsMaterialDialogOpen(true)}
         addLabel={t('common.addNew', 'Add New')}
       />
 
@@ -137,7 +148,7 @@ export default function RawMaterials() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('inventory.form.unit', 'Unit *')}</Label>
-                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={materialForm.unitId} onChange={e => setMaterialForm({ ...materialForm, unitId: e.target.value })} required>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={materialForm.unitId} onChange={e => setMaterialForm({ ...materialForm, unitId: e.target.value })} required>
                   <option value="">{t('inventory.form.selectUnit', 'Select Unit')}</option>
                   {units.map((u: any) => <option key={u.id} value={u.id}>{u.name} ({u.shortName})</option>)}
                 </AnimatedSelect>
@@ -166,7 +177,7 @@ export default function RawMaterials() {
           <form onSubmit={e => { e.preventDefault(); stockMutation.mutate(stockForm); }} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label>Material *</Label>
-              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={stockForm.materialId} onChange={e => setStockForm({ ...stockForm, materialId: e.target.value })} required>
+              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={stockForm.materialId} onChange={e => setStockForm({ ...stockForm, materialId: e.target.value })} required>
                 <option value="">Select Material</option>
                 {materials.map((m: any) => <option key={m.id} value={m.id}>{m.name} (Current: {m.currentStock} {m.unit?.shortName})</option>)}
               </AnimatedSelect>
@@ -175,8 +186,8 @@ export default function RawMaterials() {
               <div className="space-y-2">
                 <Label>Transaction Type *</Label>
                 <div className="flex gap-2 mt-1">
-                  <Button type="button" variant={stockForm.type === 'IN' ? 'default' : 'outline'} className={`w-full ${stockForm.type === 'IN' ? 'bg-green-600 hover:bg-green-700' : ''}`} onClick={() => setStockForm({...stockForm, type: 'IN'})}>Stock IN (+)</Button>
-                  <Button type="button" variant={stockForm.type === 'OUT' ? 'default' : 'outline'} className={`w-full ${stockForm.type === 'OUT' ? 'bg-red-600 hover:bg-red-700' : ''}`} onClick={() => setStockForm({...stockForm, type: 'OUT'})}>Stock OUT (-)</Button>
+                  <Button type="button" variant={stockForm.type === 'IN' ? 'default' : 'outline'} className={`w-full ${stockForm.type === 'IN' ? 'bg-green-600 hover:bg-green-700' : ''}`} onClick={() => setStockForm({ ...stockForm, type: 'IN' })}>Stock IN (+)</Button>
+                  <Button type="button" variant={stockForm.type === 'OUT' ? 'default' : 'outline'} className={`w-full ${stockForm.type === 'OUT' ? 'bg-red-600 hover:bg-red-700' : ''}`} onClick={() => setStockForm({ ...stockForm, type: 'OUT' })}>Stock OUT (-)</Button>
                 </div>
               </div>
               <div className="space-y-2">

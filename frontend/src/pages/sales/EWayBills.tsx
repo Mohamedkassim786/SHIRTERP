@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {  Truck, FileText, XCircle  } from 'lucide-react';
+import { Truck, FileText, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -112,23 +112,37 @@ export default function EWayBills() {
 
   /* ---------- Columns ---------- */
   const columns = [
-    { key: 'ewbNumber',      label: t('eway.cols.ewbNo', 'EWB NO.'),
-      render: (r: any) => <span className="font-mono font-bold text-indigo-700">{r.ewbNumber}</span> },
-    { key: 'invoice',        label: t('eway.cols.invoice', 'INVOICE'),
-      render: (r: any) => r.invoice?.invoiceNumber || <span className="text-slate-400">—</span> },
-    { key: 'vehicleNumber',  label: t('eway.cols.vehicleNo', 'VEHICLE NO.'),
-      render: (r: any) => <span className="font-semibold">{r.vehicleNumber}</span> },
-    { key: 'route',          label: t('eway.cols.route', 'ROUTE'),
-      render: (r: any) => <span className="text-sm">{r.fromPlace} → {r.toPlace}</span> },
-    { key: 'transportMode',  label: t('eway.cols.mode', 'MODE'),
-      render: (r: any) => <Badge variant="outline">{r.transportMode}</Badge> },
-    { key: 'totalValue',     label: t('eway.cols.value', 'VALUE (₹)'),
-      render: (r: any) => <span className="font-semibold">₹{r.totalValue?.toLocaleString('en-IN')}</span> },
-    { key: 'validUntil',     label: t('eway.cols.validUntil', 'VALID UNTIL'),
+    {
+      key: 'ewbNumber', label: t('eway.cols.ewbNo', 'EWB NO.'),
+      render: (r: any) => <span className="font-mono font-bold text-indigo-700">{r.ewbNumber}</span>
+    },
+    {
+      key: 'invoice', label: t('eway.cols.invoice', 'INVOICE'),
+      render: (r: any) => r.invoice?.invoiceNumber || <span className="text-slate-400">—</span>
+    },
+    {
+      key: 'vehicleNumber', label: t('eway.cols.vehicleNo', 'VEHICLE NO.'),
+      render: (r: any) => <span className="font-semibold">{r.vehicleNumber}</span>
+    },
+    {
+      key: 'route', label: t('eway.cols.route', 'ROUTE'),
+      render: (r: any) => <span className="text-sm">{r.fromPlace} → {r.toPlace}</span>
+    },
+    {
+      key: 'transportMode', label: t('eway.cols.mode', 'MODE'),
+      render: (r: any) => <Badge variant="outline">{r.transportMode}</Badge>
+    },
+    {
+      key: 'totalValue', label: t('eway.cols.value', 'VALUE (₹)'),
+      render: (r: any) => <span className="font-semibold">₹{r.totalValue?.toLocaleString('en-IN')}</span>
+    },
+    {
+      key: 'validUntil', label: t('eway.cols.validUntil', 'VALID UNTIL'),
       render: (r: any) => r.validUntil
         ? new Date(r.validUntil).toLocaleDateString('en-IN')
-        : <span className="text-slate-400">—</span> },
-    { key: 'status',         label: t('customers.cols.status', 'STATUS'), render: (r: any) => statusBadge(r.status) },
+        : <span className="text-slate-400">—</span>
+    },
+    { key: 'status', label: t('customers.cols.status', 'STATUS'), render: (r: any) => statusBadge(r.status) },
     {
       key: 'actions', label: t('customers.cols.actions', 'ACTIONS'),
       render: (r: any) => (

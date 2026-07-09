@@ -4,22 +4,22 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // -----------------------------------------------------------------------------
-// SHIRT MODELS
+// PRODUCTS
 // -----------------------------------------------------------------------------
 
-export const getShirtModels = async (req: Request, res: Response) => {
+export const getProducts = async (req: Request, res: Response) => {
   try {
-    const data = await prisma.shirtModel.findMany({ 
+    const data = await prisma.product.findMany({ 
       include: { category: true, boms: { include: { rawMaterial: true } } },
       orderBy: { createdAt: 'desc' } 
     });
     res.json(data);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching shirt models' });
+    res.status(500).json({ message: 'Error fetching products' });
   }
 };
 
-export const createShirtModel = async (req: Request, res: Response) => {
+export const createProduct = async (req: Request, res: Response) => {
   try {
     const { boms, ...modelData } = req.body;
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
@@ -29,7 +29,7 @@ export const createShirtModel = async (req: Request, res: Response) => {
       bomsArray = typeof boms === 'string' ? JSON.parse(boms) : boms;
     }
 
-    const data = await prisma.shirtModel.create({ 
+    const data = await prisma.product.create({ 
       data: {
         ...modelData,
         categoryId: Number(modelData.categoryId),
@@ -45,7 +45,7 @@ export const createShirtModel = async (req: Request, res: Response) => {
     });
     res.status(201).json(data);
   } catch (error) {
-    res.status(400).json({ message: 'Error creating shirt model' });
+    res.status(400).json({ message: 'Error creating product' });
   }
 };
 

@@ -1,15 +1,15 @@
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
+import { AnimatedDatePicker } from '@/components/ui/AnimatedDatePicker';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {  IndianRupee, TrendingDown, PlusCircle, Trash2  } from 'lucide-react';
+import {  IndianRupee, TrendingDown, PlusCircle, Trash2, CreditCard  } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -83,8 +83,16 @@ export default function Expenses() {
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">{t('expenses.title', 'Expense Management')}</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center shadow-lg shadow-rose-200/50">
+          <CreditCard className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('expenses.title', 'Expense Management')}</h1>
+          <p className="text-sm text-slate-500">Track company expenditures, categories, and payment methods</p>
+        </div>
+      </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -113,8 +121,8 @@ export default function Expenses() {
         <div className="space-y-4">
           {/* Date Filters */}
           <div className="flex flex-wrap gap-3 items-end">
-            <div><Label className="text-xs">{t('expenses.filter.from', 'From')}</Label><AnimatedInput type="date" className="w-36" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></div>
-            <div><Label className="text-xs">{t('expenses.filter.to', 'To')}</Label><AnimatedInput type="date" className="w-36" value={dateTo} onChange={e => setDateTo(e.target.value)} /></div>
+            <div><Label className="text-xs">{t('expenses.filter.from', 'From')}</Label><AnimatedDatePicker className="w-36 font-normal" placeholder="Start Date" value={dateFrom} onChange={setDateFrom} /></div>
+            <div><Label className="text-xs">{t('expenses.filter.to', 'To')}</Label><AnimatedDatePicker className="w-36 font-normal" placeholder="End Date" value={dateTo} onChange={setDateTo} /></div>
             {(dateFrom || dateTo) && <Button variant="outline" size="sm" onClick={() => { setDateFrom(''); setDateTo(''); }}>{t('expenses.filter.clear', 'Clear Filter')}</Button>}
           </div>
           <DataTable columns={columns} data={expenses} searchKey="description" onAdd={openAdd} />
@@ -152,14 +160,14 @@ export default function Expenses() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('expenses.form.category', 'Category *')}</Label>
-                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })} required>
                   <option value="">{t('common.select', 'Select')}</option>
                   {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </AnimatedSelect>
               </div>
               <div className="space-y-2">
                 <Label>{t('expenses.form.date', 'Date *')}</Label>
-                <AnimatedInput type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
+                <AnimatedDatePicker value={form.date} onChange={val => setForm({ ...form, date: val })} required />
               </div>
             </div>
             <div className="space-y-2">
@@ -173,7 +181,7 @@ export default function Expenses() {
               </div>
               <div className="space-y-2">
                 <Label>{t('expenses.form.paymentMethod', 'Payment Method')}</Label>
-                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.paidBy} onChange={e => setForm({ ...form, paidBy: e.target.value })}>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={form.paidBy} onChange={e => setForm({ ...form, paidBy: e.target.value })}>
                   {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
                 </AnimatedSelect>
               </div>

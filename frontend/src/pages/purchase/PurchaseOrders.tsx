@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {  Trash2, Plus  } from 'lucide-react';
+import { Trash2, Plus, ShoppingBag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -94,21 +94,33 @@ export default function PurchaseOrders() {
     { key: 'supplier', label: t('purchases.cols.supplier', 'SUPPLIER'), render: (row: any) => row.supplier?.name || '-' },
     { key: 'items', label: t('purchases.cols.items', 'ITEMS'), render: (row: any) => `${row.items?.length || 0} ${t('purchases.materials', 'materials')}` },
     { key: 'totalAmount', label: t('purchases.cols.total', 'TOTAL (₹)'), render: (row: any) => `₹${getTotalAmount(row)}` },
-    { key: 'status', label: t('customers.cols.status', 'Status'), render: (row: any) => (
-      <Badge variant={row.status === 'COMPLETED' ? 'default' : 'secondary'}>{row.status}</Badge>
-    )},
-    { key: 'actions', label: t('customers.cols.actions', 'ACTION'), render: (row: any) => (
-      row.status === 'PENDING' ? (
-        <Button size="sm" onClick={() => { setSelectedPO(row); setIsGRNDialogOpen(true); }}>
-          {t('purchases.receiveGoods', 'Receive Goods (GRN)')}
-        </Button>
-      ) : <span className="text-xs text-green-600 font-medium">✓ {t('purchases.received', 'Received')}</span>
-    )}
+    {
+      key: 'status', label: t('customers.cols.status', 'Status'), render: (row: any) => (
+        <Badge variant={row.status === 'COMPLETED' ? 'default' : 'secondary'}>{row.status}</Badge>
+      )
+    },
+    {
+      key: 'actions', label: t('customers.cols.actions', 'ACTION'), render: (row: any) => (
+        row.status === 'PENDING' ? (
+          <Button size="sm" onClick={() => { setSelectedPO(row); setIsGRNDialogOpen(true); }}>
+            {t('purchases.receiveGoods', 'Receive Goods (GRN)')}
+          </Button>
+        ) : <span className="text-xs text-green-600 font-medium">✓ {t('purchases.received', 'Received')}</span>
+      )
+    }
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">{t('purchases.title', 'Purchase Orders')}</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-cyan-600 flex items-center justify-center shadow-lg shadow-cyan-200/50">
+          <ShoppingBag className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('purchases.title', 'Purchase Orders')}</h1>
+          <p className="text-sm text-slate-500">Place orders to vendors and process Goods Received Notes (GRN)</p>
+        </div>
+      </div>
       <DataTable columns={columns} data={pos} searchKey="poNumber" onAdd={() => { resetForm(); setIsDialogOpen(true); }} addLabel={t('common.addNew', 'Add New')} />
 
       {/* Create PO Dialog */}
@@ -135,7 +147,7 @@ export default function PurchaseOrders() {
                 <Label className="text-base font-semibold">{t('purchases.form.materialsToOrder', 'Materials to Order *')}</Label>
                 <Button type="button" size="sm" variant="outline" onClick={addItem}><Plus className="h-4 w-4 mr-1" />{t('orders.form.addRow', 'Add Row')}</Button>
               </div>
-              <div className="rounded-lg border overflow-x-auto">
+              <div className="rounded-lg border">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-50/50">
                     <tr>

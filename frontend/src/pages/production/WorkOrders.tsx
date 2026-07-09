@@ -6,10 +6,9 @@ import { DataTable } from '@/components/shared/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import {  Factory, Activity, CheckCircle2  } from 'lucide-react';
+import { Factory, Activity, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -54,47 +53,61 @@ export default function WorkOrders() {
     { key: 'woNumber', label: t('production.cols.woNumber', 'WORK ORDER NO') },
     { key: 'order', label: t('production.cols.linkedOrder', 'LINKED ORDER'), render: (row: any) => row.order?.orderNumber || '-' },
     { key: 'targetQty', label: t('production.cols.targetQty', 'TARGET QTY'), render: (row: any) => <span className="font-bold">{row.targetQty} {t('production.pcs', 'pcs')}</span> },
-    { key: 'status', label: t('customers.cols.status', 'Status'), render: (row: any) => (
-      <Badge variant={row.status === 'RUNNING' ? 'default' : 'secondary'}>{row.status}</Badge>
-    )},
-    { key: 'progress', label: t('production.cols.stageProgress', 'STAGE PROGRESS'), render: (row: any) => {
-      const lastStage = row.stages && row.stages.length > 0 ? row.stages[row.stages.length - 1] : null;
-      const currentIndex = lastStage ? STAGES.indexOf(lastStage.stageName) : -1;
-      
-      return (
-        <div className="flex items-center gap-1">
-          {STAGES.map((stage, idx) => {
-            const isCompleted = idx <= currentIndex;
-            const isCurrent = idx === currentIndex;
-            
-            return (
-              <div 
-                key={stage} 
-                title={`${stage} ${isCurrent ? `(${lastStage?.qtyOut} ${t('production.pcs', 'pcs')})` : ''}`}
-                className={`h-2 flex-1 rounded-full min-w-[20px] transition-all
+    {
+      key: 'status', label: t('customers.cols.status', 'Status'), render: (row: any) => (
+        <Badge variant={row.status === 'RUNNING' ? 'default' : 'secondary'}>{row.status}</Badge>
+      )
+    },
+    {
+      key: 'progress', label: t('production.cols.stageProgress', 'STAGE PROGRESS'), render: (row: any) => {
+        const lastStage = row.stages && row.stages.length > 0 ? row.stages[row.stages.length - 1] : null;
+        const currentIndex = lastStage ? STAGES.indexOf(lastStage.stageName) : -1;
+
+        return (
+          <div className="flex items-center gap-1">
+            {STAGES.map((stage, idx) => {
+              const isCompleted = idx <= currentIndex;
+              const isCurrent = idx === currentIndex;
+
+              return (
+                <div
+                  key={stage}
+                  title={`${stage} ${isCurrent ? `(${lastStage?.qtyOut} ${t('production.pcs', 'pcs')})` : ''}`}
+                  className={`h-2 flex-1 rounded-full min-w-[20px] transition-all
                   ${isCompleted ? 'bg-green-500' : 'bg-slate-200'}
                   ${isCurrent ? 'ring-2 ring-green-200 ring-offset-1' : ''}
                 `}
-              />
-            );
-          })}
-          <span className="text-xs text-slate-400 ml-2 whitespace-nowrap min-w-[80px]">
-            {lastStage ? lastStage.stageName : t('production.notStarted', 'Not Started')}
-          </span>
-        </div>
-      );
-    }},
-    { key: 'actions', label: t('customers.cols.actions', 'ACTIONS'), render: (row: any) => (
-      <Button size="sm" variant="outline" className="text-indigo-600 border-indigo-200 hover:bg-indigo-50" onClick={() => { setSelectedWO(row); setIsStageDialogOpen(true); }}>
-        {t('production.updateStage', 'Update Stage')}
-      </Button>
-    )}
+                />
+              );
+            })}
+            <span className="text-xs text-slate-400 ml-2 whitespace-nowrap min-w-[80px]">
+              {lastStage ? lastStage.stageName : t('production.notStarted', 'Not Started')}
+            </span>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'actions', label: t('customers.cols.actions', 'ACTIONS'), render: (row: any) => (
+        <Button size="sm" variant="outline" className="text-indigo-600 border-indigo-200 hover:bg-indigo-50" onClick={() => { setSelectedWO(row); setIsStageDialogOpen(true); }}>
+          {t('production.updateStage', 'Update Stage')}
+        </Button>
+      )
+    }
   ];
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-slate-900">{t('production.title', 'Production Tracker')}</h1>
-      
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-200/50">
+          <Factory className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('production.title', 'Production Tracker')}</h1>
+          <p className="text-sm text-slate-500">Monitor work orders and process raw materials through stages</p>
+        </div>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="glass border-l-4 border-l-indigo-500">
@@ -130,12 +143,12 @@ export default function WorkOrders() {
         <h2 className="text-lg font-bold text-slate-700">{t('production.activeOrders', 'Active Work Orders')}</h2>
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={workOrders} 
+      <DataTable
+        columns={columns}
+        data={workOrders}
         isLoading={isLoading}
         error={error}
-        searchKey="woNumber" 
+        searchKey="woNumber"
       />
 
       <Dialog open={isStageDialogOpen} onOpenChange={setIsStageDialogOpen}>
@@ -146,7 +159,7 @@ export default function WorkOrders() {
           <form onSubmit={handleStageSubmit} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label>{t('production.form.stage', 'Stage')}</Label>
-              <AnimatedSelect 
+              <AnimatedSelect
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={stageForm.stageName}
                 onChange={e => setStageForm({ ...stageForm, stageName: e.target.value })}

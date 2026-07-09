@@ -137,7 +137,7 @@ model Category {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   description String?
-  shirtModels ShirtModel[]
+  products    Product[]
 
   @@map("categories")
 }
@@ -174,7 +174,7 @@ model Unit {
   @@map("units")
 }
 
-model ShirtModel {
+model Product {
   id             Int             @id @default(autoincrement())
   name           String          @unique
   categoryId     Int
@@ -213,7 +213,7 @@ model RawMaterial {
 model BOM {
   id             Int         @id @default(autoincrement())
   modelId        Int
-  shirtModel     ShirtModel  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  product        Product     @relation(fields: [modelId], references: [id], onDelete: Cascade)
   materialId     Int
   rawMaterial    RawMaterial @relation(fields: [materialId], references: [id])
   quantityPerUnit Float
@@ -332,7 +332,7 @@ model OrderItem {
   orderId    Int
   order      CustomerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   modelId    Int
-  model      ShirtModel    @relation(fields: [modelId], references: [id])
+  product    Product       @relation(fields: [modelId], references: [id])
   colorId    Int
   color      Color         @relation(fields: [colorId], references: [id])
   sizeId     Int
@@ -376,7 +376,7 @@ model ProductionStage {
 model FinishedGood {
   id         Int        @id @default(autoincrement())
   modelId    Int
-  model      ShirtModel @relation(fields: [modelId], references: [id])
+  product    Product    @relation(fields: [modelId], references: [id])
   colorId    Int
   color      Color      @relation(fields: [colorId], references: [id])
   sizeId     Int
@@ -437,7 +437,7 @@ model InvoiceItem {
   invoiceId  Int
   invoice    SalesInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   modelId    Int
-  model      ShirtModel   @relation(fields: [modelId], references: [id])
+  product    Product      @relation(fields: [modelId], references: [id])
   colorId    Int
   color      Color        @relation(fields: [colorId], references: [id])
   sizeId     Int
@@ -586,7 +586,7 @@ model QuotationItem {
   quotationId  Int
   quotation    Quotation  @relation(fields: [quotationId], references: [id], onDelete: Cascade)
   modelId      Int
-  model        ShirtModel @relation(fields: [modelId], references: [id])
+  product      Product    @relation(fields: [modelId], references: [id])
   colorId      Int
   color        Color      @relation(fields: [colorId], references: [id])
   sizeId       Int

@@ -12,35 +12,36 @@ const navGroups = [
   {
     label: 'Core',
     items: [
-      { icon: LayoutDashboard, label: 'Dashboard',    path: '/' },
-      { icon: Users,           label: 'Customers',    path: '/customers' },
-      { icon: Truck,           label: 'Vendors',      path: '/suppliers' },
+      { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+      { icon: Users, label: 'Customers', path: '/customers' },
+      { icon: Truck, label: 'Vendors', path: '/suppliers' },
     ]
   },
   {
     label: 'Operations',
     items: [
-      { icon: Package,         label: 'Inventory',    path: '/inventory' },
-      { icon: ShoppingCart,    label: 'Orders',       path: '/orders' },
-      { icon: Truck,           label: 'Purchases',    path: '/purchases' },
-      { icon: Factory,         label: 'Production',   path: '/production' },
-      { icon: FileCheck,       label: 'E-Way Bills',  path: '/eway-bills' },
+      { icon: Package, label: 'Inventory', path: '/inventory' },
+      { icon: ShoppingCart, label: 'Orders', path: '/orders' },
+      { icon: Package, label: 'Products', path: '/products' },
+      { icon: Truck, label: 'Purchases', path: '/purchases' },
+      { icon: Factory, label: 'Production', path: '/production' },
+      { icon: FileCheck, label: 'E-Way Bills', path: '/eway-bills' },
     ]
   },
   {
     label: 'Finance & HR',
     items: [
-      { icon: Receipt,         label: 'Invoices',     path: '/sales' },
-      { icon: IndianRupee,     label: 'Expenses',     path: '/expenses' },
-      { icon: Landmark,        label: 'Accounts',     path: '/finance' },
-      { icon: UserCheck,       label: 'HR & Payroll', path: '/hr' },
+      { icon: Receipt, label: 'Invoices', path: '/sales' },
+      { icon: IndianRupee, label: 'Expenses', path: '/expenses' },
+      { icon: Landmark, label: 'Accounts', path: '/finance' },
+      { icon: UserCheck, label: 'HR & Payroll', path: '/hr' },
     ]
   },
   {
     label: 'System',
     items: [
-      { icon: BarChart3,       label: 'Reports',      path: '/reports' },
-      { icon: Settings,        label: 'Settings',     path: '/settings' },
+      { icon: BarChart3, label: 'Reports', path: '/reports' },
+      { icon: Settings, label: 'Settings', path: '/settings' },
     ]
   },
 ];
@@ -65,10 +66,9 @@ export default function MainLayout() {
   const handleLogout = () => { logout(); navigate('/login'); };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-4 px-5 py-3.5 rounded-xl mx-3 transition-all duration-150 font-semibold text-[15px] ${
-      isActive
-        ? 'bg-blue-600 text-white shadow-md shadow-blue-200/60'
-        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    `flex items-center gap-4 px-5 py-3.5 rounded-xl mx-3 transition-all duration-150 font-semibold text-[15px] ${isActive
+      ? 'bg-blue-600 text-white shadow-md shadow-blue-200/60'
+      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
     }`;
 
   return (
@@ -151,7 +151,7 @@ export default function MainLayout() {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-4">
-            
+
             <label className="theme-switch" title="Toggle Language">
               <input type="checkbox" className="theme-switch__checkbox" checked={i18n.language === 'ta'} onChange={toggleLanguage} />
               <div className="theme-switch__container">
@@ -180,9 +180,8 @@ export default function MainLayout() {
           </div>
         </header>
 
-        {/* Page Content */}
         <div className="flex-1 overflow-auto">
-          <div className="p-8 w-full max-w-[1600px] mx-auto animate-fade-in">
+          <div className="p-8 w-full animate-fade-in">
             <Outlet />
           </div>
         </div>

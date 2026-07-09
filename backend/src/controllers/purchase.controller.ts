@@ -109,10 +109,10 @@ export const createGRN = async (req: Request, res: Response) => {
       await tx.purchaseInvoice.create({
         data: {
           invoiceNumber: invNumber,
-          poId: po.id,
-          totalAmount: po.totalAmount,
+          grnId: grn.id,
+          total: po.totalAmount,
           date: new Date(),
-          status: 'PENDING'
+          status: 'UNPAID'
         }
       });
 

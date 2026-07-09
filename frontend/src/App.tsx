@@ -26,6 +26,7 @@ import PaymentReceipt from './pages/sales/PaymentReceipt';
 import DiscountInvoicePrint from './pages/sales/SettlementOfferPrint';
 import EWayBills from './pages/sales/EWayBills';
 import EWayBillPrint from './pages/sales/EWayBillPrint';
+import Products from './pages/masters/Products';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30 * 1000, retry: 1 } }
@@ -69,6 +70,8 @@ function App() {
             <Route path="reports" element={<Reports />} />
             {/* Module 12: Settings */}
             <Route path="settings" element={<Settings />} />
+            {/* Products (Generic Master Data) */}
+            <Route path="products" element={<Products />} />
             {/* E-Way Bills */}
             <Route path="eway-bills" element={<EWayBills />} />
             {/* HR & Payroll */}

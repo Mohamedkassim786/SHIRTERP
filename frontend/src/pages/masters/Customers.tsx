@@ -6,13 +6,18 @@ import { useNavigate } from 'react-router-dom';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {  Users, IndianRupee, Clock, Trash2, Eye  } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import {  Users, IndianRupee, Clock, Trash2, Eye, MoreHorizontal, PenSquare  } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Customers() {
   const { t } = useTranslation();
@@ -87,29 +92,76 @@ export default function Customers() {
         {r.type}
       </Badge>
     )},
-    { key: 'phone', label: t('customers.cols.phone', 'Phone') },
-    { key: 'outstandingBalance', label: t('customers.cols.outstanding', 'OUTSTANDING (₹)'), render: (row: any) => (
-      <span className={`font-bold ${row.outstandingBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-        ₹{row.outstandingBalance?.toLocaleString('en-IN') || 0}
-      </span>
-    )},
-    { key: 'actions', label: t('customers.cols.actions', 'Actions'), render: (row: any) => (
-      <div className="flex justify-end gap-2">
-        <Button size="sm" variant="outline" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" onClick={() => navigate(`/customers/${row.id}`)}>
-          <Eye className="h-4 w-4 mr-1" /> {t('common.profile', 'Profile')}
-        </Button>
-        <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50" onClick={() => {
-          if(confirm('Are you sure you want to delete this customer? Historical data will be preserved.')) deleteMutation.mutate(row.id);
-        }}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    )}
+    { 
+      key: 'phone', 
+      label: t('customers.cols.phone', 'Phone'),
+      render: (r: any) => <span className="whitespace-nowrap text-slate-600">{r.phone || '-'}</span>
+    },
+    { 
+      key: 'outstandingBalance', 
+      label: t('customers.cols.outstanding', 'OUTSTANDING (₹)'), 
+      render: (row: any) => (
+        <span className={`font-bold whitespace-nowrap ${row.outstandingBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+          ₹{(row.outstandingBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      )
+    },
+    { 
+      key: 'actions', 
+      label: t('customers.cols.actions', 'Actions'), 
+      render: (row: any) => (
+        <div className="flex items-center justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 rounded-lg">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4 text-slate-500" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40 bg-white border border-slate-200 shadow-lg rounded-xl p-1 z-[9999]">
+              <DropdownMenuItem 
+                onClick={() => navigate(`/customers/${row.id}`)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg cursor-pointer transition-colors"
+              >
+                <Eye className="h-4 w-4 text-slate-400" />
+                {t('common.profile', 'Profile')}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => handleOpenDialog(row)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg cursor-pointer transition-colors"
+              >
+                <PenSquare className="h-4 w-4 text-slate-400" />
+                {t('common.edit', 'Edit')}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => {
+                  if (confirm('Are you sure you want to delete this customer? Historical data will be preserved.')) {
+                    deleteMutation.mutate(row.id);
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg cursor-pointer transition-colors font-medium"
+              >
+                <Trash2 className="h-4 w-4 text-red-400" />
+                {t('common.delete', 'Delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )
+    }
   ];
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-slate-900">{t('customers.title', 'CRM Dashboard')}</h1>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200/50">
+          <Users className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('customers.title', 'CRM Dashboard')}</h1>
+          <p className="text-sm text-slate-500">Manage customer profiles, reminders, and outstanding balances</p>
+        </div>
+      </div>
 
       {/* CRM KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -154,7 +206,6 @@ export default function Customers() {
         searchKey="name" 
         onAdd={() => handleOpenDialog()} 
         addLabel={t('common.addNew', 'Add New')}
-        onEdit={(row) => handleOpenDialog(row)} 
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

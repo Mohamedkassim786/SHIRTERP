@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export const getCustomerOrders = async (req: Request, res: Response) => {
   try {
     const data = await prisma.customerOrder.findMany({
-      include: { customer: true, items: { include: { model: true, color: true, size: true } } },
+      include: { customer: true, items: { include: { product: true, color: true, size: true } } },
       orderBy: { createdAt: 'desc' }
     });
     res.json(data);
@@ -89,7 +89,7 @@ export const createWorkOrder = async (req: Request, res: Response) => {
     
     const order = await prisma.customerOrder.findUnique({
       where: { id: Number(orderId) },
-      include: { items: { include: { model: { include: { boms: true } } } } }
+      include: { items: { include: { product: { include: { boms: true } } } } }
     });
 
     if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -97,7 +97,7 @@ export const createWorkOrder = async (req: Request, res: Response) => {
     const count = await prisma.workOrder.count();
     const woNumber = `WO-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
-    const targetQty = order.items.reduce((sum, item) => sum + item.quantity, 0);
+    const targetQty = order.items.reduce((sum: number, item: any) => sum + item.quantity, 0);
 
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create Work Order
@@ -119,7 +119,7 @@ export const createWorkOrder = async (req: Request, res: Response) => {
 
       // 3. Deduct Raw Materials based on BOM
       for (const item of order.items) {
-        for (const bom of item.model.boms) {
+        for (const bom of item.product.boms) {
           const materialNeeded = bom.quantityPerUnit * item.quantity;
           
           await tx.rawMaterial.update({
@@ -217,7 +217,7 @@ export const addProductionStage = async (req: Request, res: Response) => {
 export const getFinishedGoods = async (req: Request, res: Response) => {
   try {
     const data = await prisma.finishedGood.findMany({
-      include: { model: true, color: true, size: true }
+      include: { product: true, color: true, size: true }
     });
     res.json(data);
   } catch (error) {

@@ -8,7 +8,7 @@ export const getSalesInvoices = async (req: Request, res: Response) => {
     const data = await prisma.salesInvoice.findMany({
       include: { 
         customer: true, 
-        items: { include: { model: true, color: true, size: true } },
+        items: { include: { product: true, color: true, size: true } },
         payments: { orderBy: { date: 'asc' } }
       },
       orderBy: { createdAt: 'desc' }
@@ -26,7 +26,7 @@ export const getInvoiceById = async (req: Request, res: Response): Promise<void>
       where: { id },
       include: {
         customer: true,
-        items: { include: { model: true, color: true, size: true } },
+        items: { include: { product: true, color: true, size: true } },
       },
     });
 
@@ -173,7 +173,7 @@ export const receivePayment = async (req: Request, res: Response) => {
         include: {
           customer: true,
           invoice: {
-            include: { items: { include: { model: true, color: true, size: true } } }
+            include: { items: { include: { product: true, color: true, size: true } } }
           }
         }
       });
@@ -248,7 +248,7 @@ export const getPaymentReceipt = async (req: Request, res: Response): Promise<vo
       include: {
         customer: true,
         invoice: {
-          include: { items: { include: { model: true, color: true, size: true } } }
+          include: { items: { include: { product: true, color: true, size: true } } }
         }
       }
     });
@@ -332,7 +332,7 @@ export const getSettlementInvoice = async (req: Request, res: Response): Promise
       where: { id },
       include: {
         customer: true,
-        items: { include: { model: true, color: true, size: true } },
+        items: { include: { product: true, color: true, size: true } },
         payments: { orderBy: { date: 'asc' } }
       }
     });

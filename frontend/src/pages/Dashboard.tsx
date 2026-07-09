@@ -103,12 +103,12 @@ export default function Dashboard() {
   ];
 
   const quickActions = [
-    { label: t('menu.Customers', 'Add Customer'),   icon: Users,        path: '/customers',  from: 'from-blue-500',    to: 'to-blue-700' },
-    { label: t('menu.Invoices', 'Create Invoice'), icon: Receipt,      path: '/sales',      from: 'from-emerald-500', to: 'to-teal-600' },
-    { label: t('menu.Inventory', 'Add Stock'),      icon: Package,      path: '/inventory',  from: 'from-purple-500',  to: 'to-violet-600' },
-    { label: t('menu.Purchases', 'New Purchase'),   icon: ShoppingCart, path: '/purchases',  from: 'from-amber-500',   to: 'to-orange-500' },
-    { label: t('menu.Expenses', 'Add Expense'),    icon: IndianRupee,  path: '/expenses',   from: 'from-rose-500',    to: 'to-red-600' },
-    { label: t('menu.Orders', 'New Order'),      icon: PlusCircle,   path: '/orders',     from: 'from-slate-600',   to: 'to-slate-800' },
+    { label: t('menu.Customers', 'Add Customer'), icon: Users, path: '/customers', from: 'from-blue-500', to: 'to-blue-700' },
+    { label: t('menu.Invoices', 'Create Invoice'), icon: Receipt, path: '/sales', from: 'from-emerald-500', to: 'to-teal-600' },
+    { label: t('menu.Inventory', 'Add Stock'), icon: Package, path: '/inventory', from: 'from-purple-500', to: 'to-violet-600' },
+    { label: t('menu.Purchases', 'New Purchase'), icon: ShoppingCart, path: '/purchases', from: 'from-amber-500', to: 'to-orange-500' },
+    { label: t('menu.Expenses', 'Add Expense'), icon: IndianRupee, path: '/expenses', from: 'from-rose-500', to: 'to-red-600' },
+    { label: t('menu.Orders', 'New Order'), icon: PlusCircle, path: '/orders', from: 'from-slate-600', to: 'to-slate-800' },
   ];
 
   if (isLoading) return (
@@ -168,11 +168,10 @@ export default function Dashboard() {
 
               {kpi.trend && (
                 <div className="mt-4 pt-4 border-t border-slate-100">
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                    kpi.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-700' :
-                    kpi.trend.startsWith('-') ? 'bg-red-50 text-red-700' :
-                    'bg-slate-100 text-slate-600'
-                  }`}>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${kpi.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-700' :
+                      kpi.trend.startsWith('-') ? 'bg-red-50 text-red-700' :
+                        'bg-slate-100 text-slate-600'
+                    }`}>
                     {kpi.trend}
                   </span>
                 </div>
@@ -243,12 +242,10 @@ export default function Dashboard() {
               stats.recentActivities.map((act: any, i: number) => (
                 <div key={act.id} className="flex justify-between items-center py-3.5 px-4 hover:bg-slate-50 rounded-2xl transition-colors cursor-pointer group">
                   <div className="flex items-center gap-4">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      i % 3 === 0 ? 'bg-blue-50' : i % 3 === 1 ? 'bg-emerald-50' : 'bg-purple-50'
-                    }`}>
-                      <ShoppingCart className={`h-4 w-4 ${
-                        i % 3 === 0 ? 'text-blue-500' : i % 3 === 1 ? 'text-emerald-500' : 'text-purple-500'
-                      }`} />
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${i % 3 === 0 ? 'bg-blue-50' : i % 3 === 1 ? 'bg-emerald-50' : 'bg-purple-50'
+                      }`}>
+                      <ShoppingCart className={`h-4 w-4 ${i % 3 === 0 ? 'text-blue-500' : i % 3 === 1 ? 'text-emerald-500' : 'text-purple-500'
+                        }`} />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{act.action}</p>

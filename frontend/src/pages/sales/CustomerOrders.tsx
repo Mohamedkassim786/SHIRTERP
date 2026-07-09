@@ -1,14 +1,14 @@
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
+import { AnimatedDatePicker } from '@/components/ui/AnimatedDatePicker';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {  Trash2, Plus  } from 'lucide-react';
+import { Trash2, Plus, ShoppingCart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -40,8 +40,8 @@ export default function CustomerOrders() {
   });
 
   const { data: models = [] } = useQuery({
-    queryKey: ['shirt-models'],
-    queryFn: async () => (await api.get('/masters/shirt-models')).data,
+    queryKey: ['products'],
+    queryFn: async () => (await api.get('/masters/products')).data,
     retry: 1
   });
 
@@ -135,30 +135,42 @@ export default function CustomerOrders() {
     { key: 'customer', label: t('orders.cols.customer', 'CUSTOMER'), render: (row: any) => row.customer?.name || '-' },
     { key: 'items', label: t('orders.cols.items', 'ITEMS'), render: (row: any) => `${row.items?.length || 0} ${t('orders.variants', 'variants')}` },
     { key: 'deliveryDate', label: t('orders.cols.deliveryDate', 'DELIVERY DATE'), render: (row: any) => row.deliveryDate ? new Date(row.deliveryDate).toLocaleDateString('en-IN') : '-' },
-    { key: 'status', label: t('customers.cols.status', 'Status'), render: (row: any) => (
-      <Badge variant={statusColors[row.status] || 'secondary'}>{row.status}</Badge>
-    )},
-    { key: 'actions', label: t('customers.cols.actions', 'ACTION'), render: (row: any) => (
-      <div className="flex gap-2 items-center">
-        {row.status === 'PENDING' && (
-          <Button size="sm" onClick={() => pushToProductionMutation.mutate(row.id)} disabled={pushToProductionMutation.isPending}>
-            {t('orders.pushToProduction', 'Push to Production')}
-          </Button>
-        )}
-        {(row.status === 'READY' || row.status === 'PENDING') && (
-          <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => convertToInvoiceMutation.mutate(row)} disabled={convertToInvoiceMutation.isPending}>
-            {t('orders.convertToInvoice', 'Convert to Invoice')}
-          </Button>
-        )}
-        {row.status === 'DELIVERED' && <span className="text-xs text-green-600 font-bold">✓ {t('orders.invoiced', 'Invoiced')}</span>}
-        {row.status === 'IN_PRODUCTION' && <span className="text-xs text-blue-600 font-bold">{t('orders.inProduction', 'In Production')}</span>}
-      </div>
-    )}
+    {
+      key: 'status', label: t('customers.cols.status', 'Status'), render: (row: any) => (
+        <Badge variant={statusColors[row.status] || 'secondary'}>{row.status}</Badge>
+      )
+    },
+    {
+      key: 'actions', label: t('customers.cols.actions', 'ACTION'), render: (row: any) => (
+        <div className="flex gap-2 items-center">
+          {row.status === 'PENDING' && (
+            <Button size="sm" onClick={() => pushToProductionMutation.mutate(row.id)} disabled={pushToProductionMutation.isPending}>
+              {t('orders.pushToProduction', 'Push to Production')}
+            </Button>
+          )}
+          {(row.status === 'READY' || row.status === 'PENDING') && (
+            <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => convertToInvoiceMutation.mutate(row)} disabled={convertToInvoiceMutation.isPending}>
+              {t('orders.convertToInvoice', 'Convert to Invoice')}
+            </Button>
+          )}
+          {row.status === 'DELIVERED' && <span className="text-xs text-green-600 font-bold">✓ {t('orders.invoiced', 'Invoiced')}</span>}
+          {row.status === 'IN_PRODUCTION' && <span className="text-xs text-blue-600 font-bold">{t('orders.inProduction', 'In Production')}</span>}
+        </div>
+      )
+    }
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">{t('orders.title', 'Customer Orders')}</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-pink-600 flex items-center justify-center shadow-lg shadow-pink-200/50">
+          <ShoppingCart className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('orders.title', 'Customer Orders')}</h1>
+          <p className="text-sm text-slate-500">Create and track customer sales orders and delivery targets</p>
+        </div>
+      </div>
       <DataTable columns={columns} data={orders} searchKey="orderNumber" onAdd={() => { resetForm(); setIsDialogOpen(true); }} addLabel={t('common.addNew', 'Add New')} />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -170,14 +182,14 @@ export default function CustomerOrders() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('orders.form.customer', 'Customer *')}</Label>
-                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.customerId} onChange={e => setFormData({ ...formData, customerId: e.target.value })} required>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={formData.customerId} onChange={e => setFormData({ ...formData, customerId: e.target.value })} required>
                   <option value="">{t('orders.form.selectCustomer', 'Select Customer')}</option>
                   {customers.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </AnimatedSelect>
               </div>
               <div className="space-y-2">
                 <Label>{t('orders.form.deliveryDate', 'Delivery Date')}</Label>
-                <AnimatedInput type="date" value={formData.deliveryDate} onChange={e => setFormData({ ...formData, deliveryDate: e.target.value })} />
+                <AnimatedDatePicker value={formData.deliveryDate} onChange={val => setFormData({ ...formData, deliveryDate: val })} />
               </div>
             </div>
 
@@ -186,11 +198,11 @@ export default function CustomerOrders() {
                 <Label className="text-base font-semibold">{t('orders.form.orderItems', 'Order Items *')}</Label>
                 <Button type="button" size="sm" variant="outline" onClick={addItem}><Plus className="h-4 w-4 mr-1" />{t('orders.form.addRow', 'Add Row')}</Button>
               </div>
-              <div className="rounded-lg border overflow-x-auto">
+              <div className="rounded-lg border">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-50/50">
                     <tr>
-                      <th className="p-2 text-left">{t('orders.form.shirtModel', 'Shirt Model')}</th>
+                      <th className="p-2 text-left">{t('orders.form.product', 'Product')}</th>
                       <th className="p-2 text-left">{t('orders.form.color', 'Color')}</th>
                       <th className="p-2 text-left">{t('orders.form.size', 'Size')}</th>
                       <th className="p-2 text-left">{t('orders.form.qty', 'Qty')}</th>

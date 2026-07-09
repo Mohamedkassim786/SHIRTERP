@@ -1,12 +1,12 @@
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
+import { AnimatedDatePicker } from '@/components/ui/AnimatedDatePicker';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {  Users, Calendar, CheckCircle, XCircle, DollarSign  } from 'lucide-react';
@@ -84,15 +84,29 @@ export default function HR() {
   const tabs: Tab[] = ['employees', 'attendance', 'leave', 'payroll'];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">{t('hr.title', 'HR & Payroll')}</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-200/50">
+          <Users className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('hr.title', 'HR & Payroll')}</h1>
+          <p className="text-sm text-slate-500">Manage employee profiles, daily attendance sheets, and payroll generation</p>
+        </div>
+      </div>
 
       <div className="flex flex-wrap gap-2 border-b pb-2">
         {tabs.map(tabKey => (
-          <button key={tabKey} onClick={() => setTab(tabKey)} className={`px-4 py-2 rounded-t-lg font-medium text-sm capitalize ${tab === tabKey ? 'bg-primary text-slate-900' : 'bg-white text-slate-400 hover:bg-slate-200'}`}>
-            {tabKey === 'employees' && <Users className="h-4 w-4 inline mr-1" />}
-            {tabKey === 'attendance' && <Calendar className="h-4 w-4 inline mr-1" />}
-            {tabKey === 'payroll' && <DollarSign className="h-4 w-4 inline mr-1" />}
+          <button key={tabKey} onClick={() => setTab(tabKey)}
+            className={`px-4 py-2.5 rounded-t-xl font-semibold text-sm transition-all duration-150 flex items-center gap-2 border border-transparent ${
+              tab === tabKey 
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-200/50' 
+                : 'bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            }`}
+          >
+            {tabKey === 'employees' && <Users className="h-4 w-4" />}
+            {tabKey === 'attendance' && <Calendar className="h-4 w-4" />}
+            {tabKey === 'payroll' && <DollarSign className="h-4 w-4" />}
             {t(`hr.tabs.${tabKey}`, tabKey.charAt(0).toUpperCase() + tabKey.slice(1))}
           </button>
         ))}
@@ -119,7 +133,7 @@ export default function HR() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{t('hr.attendance.title', 'Daily Attendance')}</CardTitle>
             <div className="flex gap-3 items-center">
-              <AnimatedInput type="date" className="w-40" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)} />
+              <AnimatedDatePicker className="w-40" value={attendanceDate} onChange={setAttendanceDate} />
               <Button onClick={() => attMutation.mutate()} disabled={attMutation.isPending}>{t('hr.attendance.save', 'Save Attendance')}</Button>
             </div>
           </CardHeader>
@@ -213,7 +227,7 @@ export default function HR() {
               <div className="space-y-2"><Label>{t('common.phone', 'Phone')}</Label><AnimatedInput value={empForm.phone} onChange={e => setEmpForm({ ...empForm, phone: e.target.value })} /></div>
               <div className="space-y-2"><Label>Designation</Label><AnimatedInput value={empForm.designation} onChange={e => setEmpForm({ ...empForm, designation: e.target.value })} /></div>
               <div className="space-y-2"><Label>Department</Label>
-                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={empForm.departmentId} onChange={e => setEmpForm({ ...empForm, departmentId: e.target.value })}>
+                <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={empForm.departmentId} onChange={e => setEmpForm({ ...empForm, departmentId: e.target.value })}>
                   <option value="">Select</option>
                   {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </AnimatedSelect>
@@ -240,7 +254,7 @@ export default function HR() {
               <div className="space-y-2"><Label>Bonus (₹)</Label><AnimatedInput type="number" min="0" value={payForm.bonus} onChange={e => setPayForm({ ...payForm, bonus: e.target.value })} /></div>
             </div>
             <div className="space-y-2"><Label>Payment Method</Label>
-              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={payForm.method} onChange={e => setPayForm({ ...payForm, method: e.target.value })}>
+              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={payForm.method} onChange={e => setPayForm({ ...payForm, method: e.target.value })}>
                 <option value="BANK">Bank Transfer</option><option value="CASH">Cash</option><option value="UPI">UPI</option>
               </AnimatedSelect>
             </div>

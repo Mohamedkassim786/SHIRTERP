@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {  Search, Plus, ChevronLeft, ChevronRight, AlertCircle  } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface Column {
@@ -35,10 +35,10 @@ export function DataTable({ columns, data, onAdd, onEdit, isLoading, error, addL
 
   const filteredData = search
     ? data.filter(item =>
-        columns.some(col =>
-          String(item[col.key] || '').toLowerCase().includes(search.toLowerCase())
-        )
+      columns.some(col =>
+        String(item[col.key] || '').toLowerCase().includes(search.toLowerCase())
       )
+    )
     : data;
 
   const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);

@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Printer, BadgePercent, CheckCircle2 } from 'lucide-react';
+import { Printer, BadgePercent } from 'lucide-react';
 import api from '@/api/axios';
 
 export default function DiscountInvoicePrint() {
@@ -43,9 +43,7 @@ export default function DiscountInvoicePrint() {
   const netPayable      = invoice.netPayable > 0 ? invoice.netPayable : originalTotal;
   const balanceDue      = netPayable - totalPaid;
 
-  const paymentMethodLabel: Record<string, string> = {
-    CASH: 'Cash', UPI: 'UPI', BANK_TRANSFER: 'Bank Transfer', CHEQUE: 'Cheque',
-  };
+
 
   return (
     <div className="min-h-screen bg-slate-100 py-8 print:py-0 print:bg-white flex justify-center">

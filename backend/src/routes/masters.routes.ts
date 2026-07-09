@@ -9,7 +9,7 @@ import {
 } from '../controllers/contacts.controller';
 import { getEmployees, createEmployee, updateEmployee } from '../controllers/employees.controller';
 import { 
-  getShirtModels, createShirtModel, getRawMaterials, createRawMaterial, updateRawMaterial,
+  getProducts, createProduct, getRawMaterials, createRawMaterial, updateRawMaterial,
   getInventoryDashboard, getMaterialHistory, adjustStock 
 } from '../controllers/products.controller';
 import { sizes, colors, units, departments, categories } from '../controllers/settings.controller';
@@ -47,16 +47,16 @@ router.get('/employees', getEmployees);
 router.post('/employees', createEmployee);
 router.put('/employees/:id', updateEmployee);
 
-// Shirt Models - support both JSON body and multipart (for image upload)
-router.get('/shirt-models', getShirtModels);
-router.post('/shirt-models', (req, res, next) => {
+// Products - support both JSON body and multipart (for image upload)
+router.get('/products', getProducts);
+router.post('/products', (req, res, next) => {
   // If content-type is multipart, use multer
   if (req.headers['content-type']?.includes('multipart/form-data')) {
     upload.single('image')(req, res, next);
   } else {
     next();
   }
-}, createShirtModel);
+}, createProduct);
 
 // Raw Materials & Inventory
 router.get('/inventory/dashboard', getInventoryDashboard);

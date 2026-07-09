@@ -1,16 +1,17 @@
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { AnimatedDatePicker } from '@/components/ui/AnimatedDatePicker';
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/shared/DataTable';
 import {  ArrowLeft, User, Phone, MapPin, Building, IndianRupee, Clock, CheckCircle, Plus  } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
+import { format } from 'date-fns';
 
 type TabType = 'invoices' | 'payments' | 'reminders';
 
@@ -109,13 +110,13 @@ export default function CustomerProfile() {
             <div>
               <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.outstanding', 'CURRENT OUTSTANDING')}</p>
               <p className={`text-3xl font-bold mt-1 ${profile.outstandingBalance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                ₹{profile.outstandingBalance?.toLocaleString('en-IN') || 0}
+                ₹{(profile.outstandingBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <div className="pt-4 border-t border-indigo-100/50">
               <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('customers.profile.revenue', 'LIFETIME REVENUE')}</p>
               <p className="text-xl font-bold text-slate-900 mt-1">
-                ₹{profile.totalRevenue?.toLocaleString('en-IN') || 0}
+                ₹{(profile.totalRevenue ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </CardContent>
@@ -144,8 +145,8 @@ export default function CustomerProfile() {
           <DataTable 
             columns={[
               { key: 'invoiceNumber', label: t('common.invoiceNo', 'INVOICE NO') },
-              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
-              { key: 'totalAmount', label: t('common.amount', 'AMOUNT'), render: (r: any) => `₹${r.totalAmount?.toLocaleString('en-IN')}` },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => <span className="whitespace-nowrap text-slate-600">{format(new Date(r.date), 'dd MMM yyyy')}</span> },
+              { key: 'totalAmount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="whitespace-nowrap">₹{r.totalAmount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> },
               { key: 'status', label: t('common.status', 'STATUS'), render: (r: any) => <Badge variant={r.status === 'PAID' ? 'default' : 'secondary'}>{r.status}</Badge> }
             ]} 
             data={profile.invoices || []} 
@@ -156,10 +157,10 @@ export default function CustomerProfile() {
         {activeTab === 'payments' && (
           <DataTable 
             columns={[
-              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => <span className="whitespace-nowrap text-slate-600">{format(new Date(r.date), 'dd MMM yyyy')}</span> },
               { key: 'method', label: t('common.method', 'METHOD') },
               { key: 'reference', label: t('common.refNo', 'REFERENCE NO') },
-              { key: 'amount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="font-bold text-green-600">+₹{r.amount?.toLocaleString('en-IN')}</span> },
+              { key: 'amount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="font-bold text-green-600 whitespace-nowrap">+₹{r.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> },
             ]} 
             data={profile.payments || []} 
             searchKey="reference" 
@@ -186,7 +187,7 @@ export default function CustomerProfile() {
                       </div>
                       <div className="space-y-2">
                         <Label>Due Date</Label>
-                        <AnimatedInput type="date" required value={reminderForm.dueDate} onChange={e => setReminderForm({...reminderForm, dueDate: e.target.value})} />
+                        <AnimatedDatePicker value={reminderForm.dueDate} onChange={val => setReminderForm({...reminderForm, dueDate: val})} />
                       </div>
                       <div className="space-y-2 sm:col-span-2">
                         <Label>Notes (Optional)</Label>

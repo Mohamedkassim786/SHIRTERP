@@ -5,12 +5,21 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Receipt, CheckCircle2, AlertCircle, BadgePercent } from 'lucide-react';
+import { 
+  Trash2, Plus, Receipt, CheckCircle2, AlertCircle, BadgePercent,
+  MoreHorizontal, Printer, Percent, FileText, Check, Clock
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
+import { format } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface InvoiceItem {
   modelId: string; colorId: string; sizeId: string; quantity: string; unitPrice: string; gstPercent: string;
@@ -68,8 +77,8 @@ export default function SalesInvoices() {
     retry: 1,
   });
   const { data: models = [] } = useQuery({
-    queryKey: ['shirt-models'],
-    queryFn: async () => (await api.get('/masters/shirt-models')).data,
+    queryKey: ['products'],
+    queryFn: async () => (await api.get('/masters/products')).data,
     retry: 1,
   });
   const { data: colors = [] } = useQuery({
@@ -197,39 +206,72 @@ export default function SalesInvoices() {
 
   /* ---------- Status badge helper ---------- */
   const statusBadge = (status: string) => {
-    if (status === 'PAID')    return <Badge className="bg-green-100 text-green-700 border border-green-200">✓ Paid</Badge>;
-    if (status === 'PARTIAL') return <Badge className="bg-amber-100 text-amber-700 border border-amber-200">◑ Partial</Badge>;
-    return <Badge variant="secondary">Unpaid</Badge>;
+    if (status === 'PAID') return (
+      <Badge className="bg-green-50 text-green-700 border border-green-200/60 font-semibold gap-1 py-1 px-2.5 flex items-center w-fit">
+        <Check className="h-3 w-3" /> Paid
+      </Badge>
+    );
+    if (status === 'PARTIAL') return (
+      <Badge className="bg-amber-50 text-amber-700 border border-amber-200/60 font-semibold gap-1 py-1 px-2.5 flex items-center w-fit">
+        <Clock className="h-3 w-3" /> Partial
+      </Badge>
+    );
+    return (
+      <Badge variant="secondary" className="bg-slate-50 text-slate-600 border border-slate-200/60 font-semibold gap-1 py-1 px-2.5 flex items-center w-fit">
+        <AlertCircle className="h-3 w-3" /> Unpaid
+      </Badge>
+    );
+  };
+
+  /* ---------- Helper to format currency ---------- */
+  const formatCurrency = (val: number) => {
+    return `₹${(val ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   /* ---------- Columns ---------- */
   const columns = [
-    { key: 'invoiceNumber', label: t('sales.columns.invoiceNo', 'Invoice No') },
-    { key: 'customer',      label: t('sales.columns.customer', 'Customer'),    render: (row: any) => row.customer?.name || '-' },
-    { key: 'items',         label: t('sales.columns.items', 'Items'),       render: (row: any) => `${row.items?.length || 0} lines` },
-    {
-      key: 'totalAmount', label: t('sales.columns.total', 'Invoice Total (₹)'),
-      render: (row: any) => <span className="font-bold">₹{row.totalAmount?.toLocaleString('en-IN')}</span>,
+    { 
+      key: 'invoiceNumber', 
+      label: t('sales.columns.invoiceNo', 'Invoice No'),
+      render: (row: any) => <span className="whitespace-nowrap font-medium text-slate-900">{row.invoiceNumber}</span>
+    },
+    { 
+      key: 'customer',      
+      label: t('sales.columns.customer', 'Customer'),    
+      render: (row: any) => <span className="whitespace-nowrap font-medium text-slate-700">{row.customer?.name || '-'}</span> 
+    },
+    { 
+      key: 'items',         
+      label: t('sales.columns.items', 'Items'),       
+      render: (row: any) => <span className="whitespace-nowrap text-slate-500">{row.items?.length || 0} lines</span> 
     },
     {
-      key: 'discount', label: t('sales.columns.discount', 'Discount'),
+      key: 'totalAmount', 
+      label: t('sales.columns.total', 'Invoice Total (₹)'),
+      render: (row: any) => <span className="font-bold text-slate-800 whitespace-nowrap">{formatCurrency(row.totalAmount)}</span>,
+    },
+    {
+      key: 'discount', 
+      label: t('sales.columns.discount', 'Discount'),
       render: (row: any) => row.proposedDiscountPct > 0 
-        ? <span className="text-amber-600 font-semibold">{Number(row.proposedDiscountPct).toLocaleString('en-IN', { maximumFractionDigits: 2 })}% (₹{row.proposedDiscountAmt.toLocaleString('en-IN')})</span> 
-        : '-'
+        ? <span className="text-amber-600 font-semibold whitespace-nowrap">{Number(row.proposedDiscountPct).toFixed(2)}% ({formatCurrency(row.proposedDiscountAmt)})</span> 
+        : <span className="text-slate-400 font-normal">-</span>
     },
     {
-      key: 'netPayable', label: t('sales.columns.netPayable', 'Net Payable (₹)'),
+      key: 'netPayable', 
+      label: t('sales.columns.netPayable', 'Net Payable (₹)'),
       render: (row: any) => {
         const net = row.netPayable > 0 ? row.netPayable : row.totalAmount;
-        return <span className="font-bold text-purple-700">₹{net.toLocaleString('en-IN')}</span>;
+        return <span className="font-bold text-purple-700 whitespace-nowrap">{formatCurrency(net)}</span>;
       }
     },
     {
-      key: 'paidAmount', label: t('sales.columns.paid', 'Paid (₹)'),
+      key: 'paidAmount', 
+      label: t('sales.columns.paid', 'Paid (₹)'),
       render: (row: any) => (
-        <div className="flex flex-col gap-1 items-start">
-          <span className="text-green-700 font-semibold">
-            ₹{(row.paidAmount ?? 0).toLocaleString('en-IN')}
+        <div className="flex flex-col gap-0.5 items-start">
+          <span className="text-green-700 font-semibold whitespace-nowrap">
+            {formatCurrency(row.paidAmount)}
           </span>
           {(row.paidAmount > 0 || (row.payments && row.payments.length > 0)) && (
             <button 
@@ -237,7 +279,7 @@ export default function SalesInvoices() {
                 setHistoryInvoice(row);
                 setIsHistoryOpen(true);
               }}
-              className="text-xs text-blue-600 hover:underline flex items-center"
+              className="text-[10px] text-blue-600 hover:underline whitespace-nowrap"
             >
               View History
             </button>
@@ -246,69 +288,107 @@ export default function SalesInvoices() {
       ),
     },
     {
-      key: 'balance', label: t('sales.columns.balance', 'Balance (₹)'),
+      key: 'balance', 
+      label: t('sales.columns.balance', 'Balance (₹)'),
       render: (row: any) => {
         const net = row.netPayable > 0 ? row.netPayable : row.totalAmount;
         const bal = net - (row.paidAmount ?? 0);
         return (
-          <span className={bal > 0 ? 'text-orange-600 font-semibold' : 'text-green-600 font-semibold'}>
-            ₹{bal.toLocaleString('en-IN')}
+          <span className={`font-semibold whitespace-nowrap ${bal > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+            {formatCurrency(bal)}
           </span>
         );
       },
     },
     { key: 'status', label: t('sales.columns.status', 'Status'), render: (row: any) => statusBadge(row.status) },
-    { key: 'date',   label: t('sales.columns.date', 'Date'),   render: (row: any) => new Date(row.date).toLocaleDateString('en-IN') },
+    { 
+      key: 'date',   
+      label: t('sales.columns.date', 'Date'),   
+      render: (row: any) => <span className="text-slate-600 text-sm whitespace-nowrap">{format(new Date(row.date), 'dd MMM yyyy')}</span> 
+    },
     {
-      key: 'actions', label: t('sales.columns.actions', 'Actions'),
-      render: (row: any) => (
-        <div className="flex items-center justify-end gap-2 flex-wrap">
-          <Button size="sm" variant="outline" onClick={() => window.open(`/sales/invoice/${row.id}/print`, '_blank')}>
-            {t('sales.actions.print', 'Print')}
-          </Button>
-          {row.proposedDiscountPct > 0 && row.status !== 'PAID' && (
-            <Button size="sm" variant="outline" className="text-amber-700 border-amber-200 bg-amber-50" onClick={() => window.open(`/sales/settlement-offer/${row.id}/print`, '_blank')}>
-              {t('sales.actions.printOffer', 'Print Offer')}
-            </Button>
-          )}
-          {row.status !== 'PAID' && (
-            <Button
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => openPaymentDialog(row)}
-            >
-              <Receipt className="h-3.5 w-3.5 mr-1" />
-              {t('sales.actions.receivePayment', 'Receive Payment')}
-            </Button>
-          )}
-          {row.status !== 'PAID' && (
-            <Button
-              size="sm"
-              className={row.proposedDiscountPct > 0 ? "bg-amber-600 hover:bg-amber-700 text-white" : "bg-purple-600 hover:bg-purple-700 text-white"}
-              onClick={() => {
-                setSettleInvoice(row);
-                if (row.proposedDiscountAmt > 0) {
-                  setDiscountType('FLAT');
-                  setDiscountInput(row.proposedDiscountAmt.toString());
-                } else {
-                  setDiscountType('FLAT');
-                  setDiscountInput('');
-                }
-                setIsSettleOpen(true);
-              }}
-            >
-              <BadgePercent className="h-3.5 w-3.5 mr-1" />
-              {row.proposedDiscountPct > 0 ? t('sales.actions.editDiscount', 'Edit Discount') : t('sales.actions.setDiscount', 'Set Discount')}
-            </Button>
-          )}
-        </div>
-      ),
+      key: 'actions', 
+      label: t('sales.columns.actions', 'Actions'),
+      render: (row: any) => {
+        const hasDiscount = row.proposedDiscountPct > 0;
+        const isPaid = row.status === 'PAID';
+
+        return (
+          <div className="flex items-center justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 rounded-lg">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4 text-slate-500" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white border border-slate-200 shadow-lg rounded-xl p-1 z-[9999]">
+                <DropdownMenuItem 
+                  onClick={() => window.open(`/sales/invoice/${row.id}/print`, '_blank')}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg cursor-pointer transition-colors"
+                >
+                  <Printer className="h-4 w-4 text-slate-400" />
+                  {t('sales.actions.print', 'Print Invoice')}
+                </DropdownMenuItem>
+                
+                {hasDiscount && !isPaid && (
+                  <DropdownMenuItem 
+                    onClick={() => window.open(`/sales/settlement-offer/${row.id}/print`, '_blank')}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-amber-700 hover:bg-amber-50 hover:text-amber-900 rounded-lg cursor-pointer transition-colors font-medium"
+                  >
+                    <FileText className="h-4 w-4 text-amber-500" />
+                    {t('sales.actions.printOffer', 'Print Offer')}
+                  </DropdownMenuItem>
+                )}
+                
+                {!isPaid && (
+                  <>
+                    <DropdownMenuItem 
+                      onClick={() => openPaymentDialog(row)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-blue-700 hover:bg-blue-50 hover:text-blue-900 rounded-lg cursor-pointer transition-colors font-medium"
+                    >
+                      <Receipt className="h-4 w-4 text-blue-500" />
+                      {t('sales.actions.receivePayment', 'Receive Payment')}
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        setSettleInvoice(row);
+                        if (row.proposedDiscountAmt > 0) {
+                          setDiscountType('FLAT');
+                          setDiscountInput(row.proposedDiscountAmt.toString());
+                        } else {
+                          setDiscountType('FLAT');
+                          setDiscountInput('');
+                        }
+                        setIsSettleOpen(true);
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-purple-700 hover:bg-purple-50 hover:text-purple-900 rounded-lg cursor-pointer transition-colors font-medium"
+                    >
+                      <Percent className="h-4 w-4 text-purple-500" />
+                      {hasDiscount ? t('sales.actions.editDiscount', 'Edit Discount') : t('sales.actions.setDiscount', 'Set Discount')}
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">{t('sales.invoices.title', 'Sales Invoices')}</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-200/50">
+          <Receipt className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">{t('sales.invoices.title', 'Sales Invoices')}</h1>
+          <p className="text-sm text-slate-500">Generate invoices, record payments, and manage discounts</p>
+        </div>
+      </div>
 
       <DataTable
         columns={columns}

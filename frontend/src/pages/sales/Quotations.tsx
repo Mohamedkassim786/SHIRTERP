@@ -1,14 +1,14 @@
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { AnimatedSelect } from '@/components/ui/AnimatedSelect';
+import { AnimatedDatePicker } from '@/components/ui/AnimatedDatePicker';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/shared/DataTable';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {  Trash2, Plus, FileCheck  } from 'lucide-react';
+import {  Trash2, Plus, FileCheck, FileText  } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
 
@@ -28,7 +28,7 @@ export default function Quotations() {
 
   const { data: quotations = [] } = useQuery({ queryKey: ['quotations'], queryFn: async () => (await api.get('/quotations')).data, retry: 1 });
   const { data: customers = [] } = useQuery({ queryKey: ['customers'], queryFn: async () => (await api.get('/masters/customers')).data, retry: 1 });
-  const { data: models = [] } = useQuery({ queryKey: ['shirt-models'], queryFn: async () => (await api.get('/masters/shirt-models')).data, retry: 1 });
+  const { data: models = [] } = useQuery({ queryKey: ['products'], queryFn: async () => (await api.get('/masters/products')).data, retry: 1 });
   const { data: colors = [] } = useQuery({ queryKey: ['colors'], queryFn: async () => (await api.get('/masters/colors')).data, retry: 1 });
   const { data: sizes = [] } = useQuery({ queryKey: ['sizes'], queryFn: async () => (await api.get('/masters/sizes')).data, retry: 1 });
 
@@ -73,8 +73,16 @@ export default function Quotations() {
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Quotations</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg shadow-teal-200/50">
+          <FileText className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Quotations</h1>
+          <p className="text-sm text-slate-500">Create and manage customer quotes and estimates</p>
+        </div>
+      </div>
       <DataTable columns={columns} data={quotations} searchKey="quotationNumber" onAdd={() => { resetForm(); setIsOpen(true); }} />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -91,7 +99,7 @@ export default function Quotations() {
               </div>
               <div className="space-y-2">
                 <Label>Valid Until</Label>
-                <AnimatedInput type="date" value={form.validUntil} onChange={e => setForm({ ...form, validUntil: e.target.value })} />
+                <AnimatedDatePicker value={form.validUntil} onChange={val => setForm({ ...form, validUntil: val })} />
               </div>
             </div>
             <div className="space-y-2">
@@ -137,7 +145,7 @@ export default function Quotations() {
           <DialogHeader><DialogTitle>Convert {selectedQ?.quotationNumber} to Order</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-4">
             <p className="text-sm text-slate-400">This will create a Customer Order with all {selectedQ?.items?.length} items from this quotation.</p>
-            <div className="space-y-2"><Label>Delivery Date</Label><AnimatedInput type="date" value={convertDate} onChange={e => setConvertDate(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Delivery Date</Label><AnimatedDatePicker value={convertDate} onChange={setConvertDate} /></div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsConvertOpen(false)}>{t('common.cancel', 'Cancel')}</Button>
               <Button onClick={() => convertMutation.mutate({ id: selectedQ?.id, deliveryDate: convertDate })} disabled={convertMutation.isPending}>{convertMutation.isPending ? 'Converting...' : 'Confirm Convert'}</Button>

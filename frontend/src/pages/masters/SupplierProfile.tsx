@@ -10,9 +10,9 @@ import { DataTable } from '@/components/shared/DataTable';
 import {  ArrowLeft, Truck, Phone, MapPin, Building, IndianRupee  } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '@/api/axios';
+import { format } from 'date-fns';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type TabType = 'purchase-orders' | 'payments';
@@ -117,7 +117,7 @@ export default function SupplierProfile() {
             <div>
               <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{t('suppliers.profile.weOwe', 'WE OWE THEM')}</p>
               <p className={`text-3xl font-bold mt-1 ${profile.outstandingBalance > 0 ? 'text-orange-600' : 'text-slate-600'}`}>
-                ₹{profile.outstandingBalance?.toLocaleString('en-IN') || 0}
+                ₹{(profile.outstandingBalance ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             {profile.outstandingBalance > 0 && (
@@ -151,8 +151,8 @@ export default function SupplierProfile() {
           <DataTable 
             columns={[
               { key: 'poNumber', label: t('common.poNo', 'PO NO') },
-              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.createdAt).toLocaleDateString('en-IN') },
-              { key: 'totalAmount', label: t('common.amount', 'AMOUNT'), render: (r: any) => `₹${r.totalAmount?.toLocaleString('en-IN')}` },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => <span className="whitespace-nowrap text-slate-600">{format(new Date(r.createdAt), 'dd MMM yyyy')}</span> },
+              { key: 'totalAmount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="whitespace-nowrap">₹{r.totalAmount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> },
               { key: 'status', label: t('common.status', 'STATUS'), render: (r: any) => (
                 <Badge variant={r.status === 'COMPLETED' ? 'default' : r.status === 'CANCELLED' ? 'destructive' : 'secondary'}>{r.status}</Badge>
               )}
@@ -165,10 +165,10 @@ export default function SupplierProfile() {
         {activeTab === 'payments' && (
           <DataTable 
             columns={[
-              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => new Date(r.date).toLocaleDateString('en-IN') },
+              { key: 'date', label: t('common.date', 'DATE'), render: (r: any) => <span className="whitespace-nowrap text-slate-600">{format(new Date(r.date), 'dd MMM yyyy')}</span> },
               { key: 'method', label: t('common.method', 'METHOD') },
               { key: 'reference', label: t('common.refNo', 'REFERENCE NO') },
-              { key: 'amount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="font-bold text-orange-600">₹{r.amount?.toLocaleString('en-IN')}</span> },
+              { key: 'amount', label: t('common.amount', 'AMOUNT'), render: (r: any) => <span className="font-bold text-orange-600 whitespace-nowrap">₹{r.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> },
             ]} 
             data={profile.payments || []} 
             searchKey="reference" 
@@ -188,7 +188,7 @@ export default function SupplierProfile() {
             </div>
             <div className="space-y-2">
               <Label>Payment Method</Label>
-              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={paymentForm.method} onChange={e => setPaymentForm({ ...paymentForm, method: e.target.value })}>
+              <AnimatedSelect className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm" value={paymentForm.method} onChange={e => setPaymentForm({ ...paymentForm, method: e.target.value })}>
                 <option value="Bank Transfer">Bank Transfer</option>
                 <option value="Cash">Cash</option>
                 <option value="Cheque">Cheque</option>
